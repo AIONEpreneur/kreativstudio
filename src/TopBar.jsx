@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function TopBar({ summary, activeView, onLedger, ledgerOpen, billing, onCredits, creditsOpen }) {
+export default function TopBar({ summary, activeView, onLedger, ledgerOpen, billing, onCredits, creditsOpen, theme, onToggleTheme }) {
   const month = summary?.month ?? 0;
   const all = summary?.all_time ?? 0;
   const gens = summary?.total_generations ?? 0;
@@ -18,8 +18,8 @@ export default function TopBar({ summary, activeView, onLedger, ledgerOpen, bill
   return (
     <header className="top">
       <div className="brand">
-        Bench
-        <small>studio</small>
+        Kreativstudio
+        <small>KI, aber richtig</small>
       </div>
 
       <nav className="top-nav" aria-label="Hauptnavigation">
@@ -27,7 +27,7 @@ export default function TopBar({ summary, activeView, onLedger, ledgerOpen, bill
         {navItem("audio", "Audio", "Text in Sprache verwandeln (ElevenLabs)")}
         {navItem("models", "Modelle", "Verfügbare Bild- und Video-Modelle ansehen")}
         {navItem("work", "Ergebnisse", "Deine erstellten Bilder, Videos und Audios")}
-        {navItem("connect", "Claude verbinden", "Das Studio aus Claude & Co. nutzen")}
+        {navItem("connect", "Claude", "Das Studio direkt aus Claude nutzen")}
       </nav>
 
       <div className="top-spacer" />
@@ -46,6 +46,16 @@ export default function TopBar({ summary, activeView, onLedger, ledgerOpen, bill
 
       <button type="button" className={`ghost-btn${ledgerOpen ? " on" : ""}`} onClick={onLedger}>
         Kostenbuch
+      </button>
+
+      <button
+        type="button"
+        className="ghost-btn theme-toggle"
+        onClick={onToggleTheme}
+        title={theme === "dark" ? "Zum hellen Design wechseln" : "Zum dunklen Design wechseln"}
+        aria-label={theme === "dark" ? "Zum hellen Design wechseln" : "Zum dunklen Design wechseln"}
+      >
+        {theme === "dark" ? "☀️" : "🌙"}
       </button>
     </header>
   );

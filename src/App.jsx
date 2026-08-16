@@ -254,6 +254,14 @@ export default function App() {
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
   const [syncingCatalog, setSyncingCatalog] = useState(false);
+  const [theme, setTheme] = useState(() => {
+    try { return localStorage.getItem("bench.theme") || "dark"; } catch { return "dark"; }
+  });
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    try { localStorage.setItem("bench.theme", theme); } catch {}
+  }, [theme]);
 
   useEffect(() => {
     const syncView = () => {
@@ -588,6 +596,8 @@ export default function App() {
       <TopBar
         summary={ledger.summary}
         activeView={activeView}
+        theme={theme}
+        onToggleTheme={() => setTheme((current) => (current === "dark" ? "light" : "dark"))}
         onLedger={() => { setShowCredits(false); setShowLedger((v) => !v); }}
         ledgerOpen={showLedger}
         billing={billing}

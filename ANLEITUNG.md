@@ -1,4 +1,4 @@
-# 🎬 Dein eigenes KI-Kreativstudio — statt noch ein Abo
+# 🎬 Kreativstudio — dein eigenes KI-Studio statt noch ein Abo
 
 Mit diesem Studio erstellst du **Bilder, Videos und Sprachausgaben** mit den
 aktuell besten KI-Modellen (Veo, Kling, Flux, Seedream, ElevenLabs u. v. m.) —
@@ -27,14 +27,30 @@ kosten wird, und danach, was es wirklich gekostet hat.
 
 ---
 
+## Der einfachste Weg: Lass Claude das für dich machen
+
+Wenn du **Claude Code** hast (kennst du aus dem Sprint 😉), musst du fast
+nichts selbst tun. Öffne Claude Code und füge diesen Auftrag ein:
+
+> Installiere mir das Kreativstudio von <DEIN-REPO-LINK-HIER> in einen Ordner
+> „mein-kreativstudio“. Führe das Skript installieren.sh aus, hilf mir danach,
+> meinen fal.ai-Key in ~/.env einzutragen (ich erstelle ihn auf
+> fal.ai/dashboard/keys), starte das Studio mit npm run dev und sag mir, wann
+> ich http://localhost:5200 öffnen kann.
+
+Claude erledigt den Rest und sagt dir genau, wann du was tun musst.
+Die Schritte darunter brauchst du dann nur, wenn du es lieber selbst machst.
+
+---
+
 ## Schritt 1: Studio herunterladen
 
 Öffne das Programm **Terminal** (auf dem Mac: `cmd + Leertaste` → „Terminal“
 tippen → Enter) und füge diese zwei Zeilen ein:
 
 ```bash
-git clone <DEIN-REPO-LINK-HIER> mein-ki-studio
-cd mein-ki-studio
+git clone <DEIN-REPO-LINK-HIER> mein-kreativstudio
+cd mein-kreativstudio
 ```
 
 ## Schritt 2: Installieren (ein Befehl)
@@ -102,7 +118,9 @@ Fertig. 🎉
   Keine Wundertüten-Credits.
 - **Claude verbinden** — wer Claude Desktop oder Claude Code nutzt, kann das
   Studio auch direkt von dort steuern („Erstelle mir ein UGC-Video von …“).
-  Anleitung dazu im Reiter „Claude verbinden“.
+  Der Reiter „Claude verbinden“ führt dich in drei einfachen Schritten durch.
+- **Hell & Dunkel** — oben rechts kannst du zwischen hellem und dunklem
+  Design umschalten (☀️/🌙).
 
 ---
 
@@ -129,7 +147,8 @@ zu lösen. Claude kennt dieses Projekt-Setup.
 
 ---
 
-*Dieses Studio basiert auf dem Open-Source-Projekt
-[Bench Studio](https://github.com/promptadvisers/bench-studio-public)
-(MIT-Lizenz) und wurde für diese Community angepasst: deutsche Oberfläche,
-ElevenLabs-Sprachausgabe, vereinfachte Installation.*
+*Herausgeberin dieser Edition: **Kirsten Biema** · [kirstenbiema.com](https://www.kirstenbiema.com)
+(„KI, aber richtig“). Angepasst für diese Community: deutsche Oberfläche,
+ElevenLabs-Sprachausgabe, Hell-/Dunkel-Design, vereinfachte Installation.
+Basis: das Open-Source-Projekt
+[Bench Studio](https://github.com/promptadvisers/bench-studio-public) (MIT-Lizenz).*

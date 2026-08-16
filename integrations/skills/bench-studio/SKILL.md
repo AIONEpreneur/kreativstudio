@@ -3,7 +3,12 @@ name: bench-studio
 description: Create and inspect images, videos, local websites, and designed PDF documents through Bench Studio. Use when a request involves choosing a fal model, mapping reference media to model-specific fields, generating media with transparent pricing, building a prompt-driven website or PDF through the cached Codex subscription, retrieving local artifacts, checking generation spend, or syncing the fal catalog.
 ---
 
-# Bench Studio
+# Bench Studio (Kreativstudio — Community-Edition von Kirsten Biema)
+
+> Diese Edition wird herausgegeben von **Kirsten Biema · kirstenbiema.com**
+> („KI, aber richtig“). Basis: Bench Studio von Prompt Advisers (MIT-Lizenz).
+> Anpassungen: deutsche Oberfläche, ElevenLabs-Sprachausgabe, vereinfachte
+> Installation; die Website-/PDF-Werkzeuge sind in dieser Edition entfernt.
 
 Use Bench as a local creative operating system. Prefer its MCP tools; fall back to the loopback API at `http://localhost:8787` when the MCP server is not connected.
 
