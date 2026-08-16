@@ -27,7 +27,7 @@ test("health, storage, catalog, capabilities, and archives agree", async () => {
 test("invalid generation and project requests fail safely and specifically", async () => {
   const unknown = await json("/api/generate", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ modelId: "not/a-model", prompt: "test" }) });
   assert.equal(unknown.response.status, 400);
-  assert.match(unknown.payload.error, /unknown model/i);
+  assert.match(unknown.payload.error, /unbekanntes modell/i);
   const project = await json("/api/projects", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ kind: "website", title: "", prompt: "short" }) });
   assert.equal(project.response.status, 400);
   assert.match(project.payload.error, /title/i);
@@ -38,7 +38,7 @@ test("invalid generation and project requests fail safely and specifically", asy
 
   const noFile = await json("/api/upload", { method: "POST" });
   assert.equal(noFile.response.status, 400);
-  assert.match(noFile.payload.error, /no file/i);
+  assert.match(noFile.payload.error, /no file/i); // Meldung enthält weiterhin "no file"
 
   const badSlot = await json("/api/generate", {
     method: "POST",
@@ -50,5 +50,5 @@ test("invalid generation and project requests fail safely and specifically", asy
     }),
   });
   assert.equal(badSlot.response.status, 400);
-  assert.match(badSlot.payload.error, /cannot use the attached image/i);
+  assert.match(badSlot.payload.error, /kann die angehängte datei/i);
 });

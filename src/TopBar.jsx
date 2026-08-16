@@ -22,31 +22,30 @@ export default function TopBar({ summary, activeView, onLedger, ledgerOpen, bill
         <small>studio</small>
       </div>
 
-      <nav className="top-nav" aria-label="Primary navigation">
-        {navItem("create", "Create", "Create a new image or video")}
-        {navItem("websites", "Websites", "Create a complete local website")}
-        {navItem("documents", "Documents", "Create a designed PDF document")}
-        {navItem("models", "Model catalog", "Browse available image and video models")}
-        {navItem("work", "Results", "View your generated images and videos")}
-        {navItem("connect", "Connect", "Use Bench from local AI tools")}
+      <nav className="top-nav" aria-label="Hauptnavigation">
+        {navItem("create", "Erstellen", "Neues Bild oder Video erstellen")}
+        {navItem("audio", "Audio", "Text in Sprache verwandeln (ElevenLabs)")}
+        {navItem("models", "Modelle", "Verfügbare Bild- und Video-Modelle ansehen")}
+        {navItem("work", "Ergebnisse", "Deine erstellten Bilder, Videos und Audios")}
+        {navItem("connect", "Claude verbinden", "Das Studio aus Claude & Co. nutzen")}
       </nav>
 
       <div className="top-spacer" />
 
-      <div className="usage" title={`$${fmt(all)} all time`}>
-        <span>Usage</span>
+      <div className="usage" title={`$${fmt(all)} insgesamt`}>
+        <span>Verbrauch</span>
         <strong>${fmt(month)}</strong>
-        <span>{gens} runs</span>
+        <span>{gens} Läufe</span>
       </div>
 
       <button type="button" className={`credit-btn${creditsOpen ? " on" : ""}`} onClick={onCredits}>
         {billing?.available && billing.current_balance != null
-          ? `${currency(billing.current_balance, billing.currency)} credits`
-          : "Add credits"}
+          ? `${currency(billing.current_balance, billing.currency)} Guthaben`
+          : "Guthaben aufladen"}
       </button>
 
       <button type="button" className={`ghost-btn${ledgerOpen ? " on" : ""}`} onClick={onLedger}>
-        Ledger
+        Kostenbuch
       </button>
     </header>
   );

@@ -13,24 +13,24 @@ export default function Ledger({ ledger, onClose }) {
     <aside className="sheet">
       <div className="sheet-head">
         <div className="sheet-title">
-          <h3>Generation ledger</h3>
-          <span>What ran, what was sent, and what it cost.</span>
+          <h3>Kostenbuch</h3>
+          <span>Was lief, was gesendet wurde und was es gekostet hat.</span>
         </div>
         <span className="spacer" />
-        <button type="button" className="ghost-btn" onClick={onClose}>Close</button>
+        <button type="button" className="ghost-btn" onClick={onClose}>Schließen</button>
       </div>
 
       <div className="sheet-body">
-        <div className="ledger-summary" aria-label="Usage summary">
-          <div><span>All-time spend</span><strong>${allTime.toFixed(3)}</strong></div>
-          <div><span>Completed runs</span><strong>{runs}</strong></div>
-          <div><span>Average per run</span><strong>${average.toFixed(3)}</strong></div>
+        <div className="ledger-summary" aria-label="Verbrauchsübersicht">
+          <div><span>Gesamtausgaben</span><strong>${allTime.toFixed(3)}</strong></div>
+          <div><span>Abgeschlossene Läufe</span><strong>{runs}</strong></div>
+          <div><span>Durchschnitt pro Lauf</span><strong>${average.toFixed(3)}</strong></div>
         </div>
         {!rows.length ? (
           <p className="ledger-empty">
-            Nothing generated yet.
+            Noch nichts erstellt.
             <br />
-            Every run lands here with its model, prompt, request id and billed cost.
+            Jeder Lauf landet hier mit Modell, Prompt, Anfrage-ID und den echten Kosten.
           </p>
         ) : (
           <div className="ledger-list">
@@ -47,7 +47,7 @@ export default function Ledger({ ledger, onClose }) {
                     </div>
                     <div className="ledger-cost">
                       <strong>${Number(r.cost ?? 0).toFixed(3)}</strong>
-                      <span className={verified ? "verified" : "estimated"}>{verified ? "Billed" : "Estimated"}</span>
+                      <span className={verified ? "verified" : "estimated"}>{verified ? "Abgerechnet" : r.cost_confidence === "kontingent" ? "Kontingent" : "Geschätzt"}</span>
                     </div>
                   </div>
                   <p>{String(r.raw_idea || r.prompt)}</p>
@@ -57,7 +57,7 @@ export default function Ledger({ ledger, onClose }) {
             })}
           </div>
         )}
-        <p className="ledger-foot">Billed means fal reported the final amount. Estimated means the endpoint did not return a verified charge.</p>
+        <p className="ledger-foot">„Abgerechnet“ heißt: fal hat den finalen Betrag gemeldet. „Geschätzt“ heißt: das Modell hat keinen bestätigten Betrag zurückgegeben. Audio-Läufe zählen als ElevenLabs-Kontingent (Zeichen), nicht in Dollar.</p>
       </div>
     </aside>
   );

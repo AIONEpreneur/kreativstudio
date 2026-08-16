@@ -1,14 +1,14 @@
 export const MODEL_KIND_LABELS = {
-  image: "Image",
+  image: "Bild",
   video: "Video",
 };
 
 export const MODEL_LANE_LABELS = {
-  t2i: "Text to image",
-  i2i: "Edit an image",
-  t2v: "Text to video",
-  i2v: "Image to video",
-  r2v: "Reference to video",
+  t2i: "Text zu Bild",
+  i2i: "Bild bearbeiten",
+  t2v: "Text zu Video",
+  i2v: "Bild zu Video",
+  r2v: "Referenz zu Video",
 };
 
 // A small editorial order for the first screen of the picker. This is not a
@@ -30,11 +30,11 @@ export const MODEL_PRIORITY = [
 ];
 
 export function modelKindLabel(model) {
-  return MODEL_KIND_LABELS[model?.kind] ?? "Model";
+  return MODEL_KIND_LABELS[model?.kind] ?? "Modell";
 }
 
 export function modelLaneLabel(model) {
-  return MODEL_LANE_LABELS[model?.lane] ?? "General generation";
+  return MODEL_LANE_LABELS[model?.lane] ?? "Allgemeine Generierung";
 }
 
 // These two fields are generated from the endpoint's live OpenAPI schema. A
@@ -83,7 +83,7 @@ export function assignInputFields(model, assets) {
       if (input.arity === "single") return count === 0;
       return !input.limits?.max_items || count < input.limits.max_items;
     });
-    if (!chosen) return { ok: false, asset, reason: `${model?.label ?? "This model"} has no available ${asset.media_type} input.` };
+    if (!chosen) return { ok: false, asset, reason: `${model?.label ?? "Dieses Modell"} hat keinen freien Eingang für ${asset.media_type}.` };
     usage.set(chosen.field, (usage.get(chosen.field) ?? 0) + 1);
     assigned.push({ ...asset, field: chosen.field });
   }

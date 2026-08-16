@@ -16,23 +16,23 @@ import {
 function prettyParam(name, value) {
   const raw = String(value);
   const named = {
-    square_hd: "Square HD",
-    square: "Square",
-    portrait_4_3: "Portrait 4:3",
-    portrait_16_9: "Portrait 16:9",
-    landscape_4_3: "Landscape 4:3",
-    landscape_16_9: "Landscape 16:9",
+    square_hd: "Quadrat HD",
+    square: "Quadrat",
+    portrait_4_3: "Hochformat 4:3",
+    portrait_16_9: "Hochformat 16:9",
+    landscape_4_3: "Querformat 4:3",
+    landscape_16_9: "Querformat 16:9",
   };
   if (name === "image_size" && named[raw]) return named[raw];
   if (name === "duration") {
     if (raw.toLowerCase() === "auto") return "Auto";
     if (/^\d+(\.\d+)?s$/i.test(raw)) return raw;
-    return `${raw} ${raw === "1" ? "second" : "seconds"}`;
+    return `${raw} ${raw === "1" ? "Sekunde" : "Sekunden"}`;
   }
   if (name === "fps") return `${raw} fps`;
-  if (name === "num_images") return `${raw} ${raw === "1" ? "image" : "images"}`;
+  if (name === "num_images") return `${raw} ${raw === "1" ? "Bild" : "Bilder"}`;
   if (["generate_audio", "enable_prompt_expansion", "auto_fix"].includes(name)) {
-    return raw === "true" ? "On" : raw === "false" ? "Off" : raw;
+    return raw === "true" ? "An" : raw === "false" ? "Aus" : raw;
   }
   return raw
     .replace(/_/g, " ")
@@ -41,19 +41,19 @@ function prettyParam(name, value) {
 
 function paramLabel(name) {
   const labels = {
-    aspect_ratio: "Aspect ratio",
-    duration: "Duration",
-    resolution: "Resolution",
-    image_size: "Image size",
-    camera_motion: "Camera motion",
-    shot_type: "Shot type",
-    quality: "Quality",
-    thinking_level: "Thinking level",
-    fps: "Frame rate",
-    num_images: "Number of images",
-    generate_audio: "Generate audio",
-    enable_prompt_expansion: "Prompt expansion",
-    auto_fix: "Auto fix",
+    aspect_ratio: "Seitenverhältnis",
+    duration: "Länge",
+    resolution: "Auflösung",
+    image_size: "Bildgröße",
+    camera_motion: "Kamerabewegung",
+    shot_type: "Einstellungsgröße",
+    quality: "Qualität",
+    thinking_level: "Denk-Level",
+    fps: "Bildrate",
+    num_images: "Anzahl Bilder",
+    generate_audio: "Audio erzeugen",
+    enable_prompt_expansion: "Prompt-Erweiterung",
+    auto_fix: "Auto-Korrektur",
   };
   return labels[name] ?? prettyParam("", name);
 }
@@ -62,111 +62,111 @@ export const SHOT_DIRECTION = {
   ugc: [
     {
       id: "creator",
-      label: "Creator",
+      label: "Person",
       options: [
-        { value: "any creator", label: "Any creator" },
-        { value: "a woman in her 20s", label: "Woman in her 20s" },
-        { value: "a man in his 30s", label: "Man in his 30s" },
-        { value: "a founder or expert", label: "Founder or expert" },
+        { value: "any creator", label: "Beliebig" },
+        { value: "a woman in her 20s", label: "Frau, Mitte 20" },
+        { value: "a man in his 30s", label: "Mann, Mitte 30" },
+        { value: "a founder or expert", label: "Gründer:in / Expert:in" },
       ],
     },
     {
       id: "setting",
-      label: "Setting",
+      label: "Umgebung",
       options: [
-        { value: "a real home setting", label: "Real home" },
-        { value: "a bathroom mirror", label: "Bathroom mirror" },
-        { value: "a kitchen counter", label: "Kitchen counter" },
-        { value: "the front seat of a car", label: "Car interior" },
+        { value: "a real home setting", label: "Echtes Zuhause" },
+        { value: "a bathroom mirror", label: "Badezimmerspiegel" },
+        { value: "a kitchen counter", label: "Küchenzeile" },
+        { value: "the front seat of a car", label: "Im Auto" },
       ],
     },
     {
       id: "beat",
-      label: "Beat",
+      label: "Ablauf",
       options: [
-        { value: "a problem, product proof, then a reaction", label: "Problem → proof → reaction" },
-        { value: "a quick honest testimonial", label: "Quick testimonial" },
-        { value: "a product demonstration with one clear result", label: "Product demonstration" },
-        { value: "an unexpected first impression", label: "First impression" },
+        { value: "a problem, product proof, then a reaction", label: "Problem → Beweis → Reaktion" },
+        { value: "a quick honest testimonial", label: "Kurzes Testimonial" },
+        { value: "a product demonstration with one clear result", label: "Produkt-Demo" },
+        { value: "an unexpected first impression", label: "Erster Eindruck" },
       ],
     },
     {
       id: "camera",
-      label: "Camera",
+      label: "Kamera",
       options: [
-        { value: "a front-facing selfie camera", label: "Front-facing selfie" },
-        { value: "a friend filming handheld", label: "Friend filming" },
-        { value: "a close handheld product detail", label: "Close handheld" },
-        { value: "a locked-off phone on a surface", label: "Phone on surface" },
+        { value: "a front-facing selfie camera", label: "Selfie-Kamera" },
+        { value: "a friend filming handheld", label: "Von Hand gefilmt" },
+        { value: "a close handheld product detail", label: "Nahaufnahme" },
+        { value: "a locked-off phone on a surface", label: "Handy abgestellt" },
       ],
     },
   ],
   unboxing: [
     {
       id: "view",
-      label: "View",
+      label: "Blickwinkel",
       options: [
-        { value: "top-down hands opening the package", label: "Top-down hands" },
-        { value: "an over-the-shoulder unboxing", label: "Over the shoulder" },
-        { value: "a close handheld reveal", label: "Close reveal" },
+        { value: "top-down hands opening the package", label: "Von oben" },
+        { value: "an over-the-shoulder unboxing", label: "Über die Schulter" },
+        { value: "a close handheld reveal", label: "Nah dran" },
       ],
     },
     {
       id: "surface",
-      label: "Surface",
+      label: "Untergrund",
       options: [
-        { value: "a warm kitchen table", label: "Kitchen table" },
-        { value: "a clean desk by a window", label: "Desk by a window" },
-        { value: "a soft bedroom surface", label: "Bedroom surface" },
+        { value: "a warm kitchen table", label: "Küchentisch" },
+        { value: "a clean desk by a window", label: "Schreibtisch am Fenster" },
+        { value: "a soft bedroom surface", label: "Weiche Unterlage" },
       ],
     },
     {
       id: "moment",
       label: "Moment",
       options: [
-        { value: "the satisfying reveal of the product", label: "Satisfying reveal" },
-        { value: "the first use straight from the box", label: "First use" },
-        { value: "a close look at the packaging details", label: "Packaging details" },
+        { value: "the satisfying reveal of the product", label: "Der Reveal" },
+        { value: "the first use straight from the box", label: "Erste Nutzung" },
+        { value: "a close look at the packaging details", label: "Verpackungs-Details" },
       ],
     },
   ],
   hypermotion: [
     {
       id: "movement",
-      label: "Movement",
+      label: "Bewegung",
       options: [
-        { value: "a fast push-in with a sharp orbit", label: "Push-in + orbit" },
-        { value: "a whip-pan between product details", label: "Whip-pan details" },
-        { value: "a smooth floating macro move", label: "Floating macro" },
+        { value: "a fast push-in with a sharp orbit", label: "Push-in + Orbit" },
+        { value: "a whip-pan between product details", label: "Whip-Pan-Details" },
+        { value: "a smooth floating macro move", label: "Schwebendes Makro" },
       ],
     },
     {
       id: "light",
-      label: "Light",
+      label: "Licht",
       options: [
-        { value: "a crisp electric blue rim light", label: "Electric blue rim" },
-        { value: "hard studio light with deep shadows", label: "Hard studio light" },
-        { value: "warm sunset light with bright highlights", label: "Warm highlights" },
+        { value: "a crisp electric blue rim light", label: "Elektroblaues Rim-Light" },
+        { value: "hard studio light with deep shadows", label: "Hartes Studiolicht" },
+        { value: "warm sunset light with bright highlights", label: "Warme Highlights" },
       ],
     },
   ],
   tvspot: [
     {
       id: "camera",
-      label: "Camera",
+      label: "Kamera",
       options: [
-        { value: "a locked-off hero composition", label: "Locked hero" },
-        { value: "a slow, deliberate dolly forward", label: "Slow dolly" },
-        { value: "a graceful product orbit", label: "Product orbit" },
+        { value: "a locked-off hero composition", label: "Feste Hero-Einstellung" },
+        { value: "a slow, deliberate dolly forward", label: "Langsame Kamerafahrt" },
+        { value: "a graceful product orbit", label: "Produkt-Orbit" },
       ],
     },
     {
       id: "mood",
-      label: "Mood",
+      label: "Stimmung",
       options: [
-        { value: "quiet, refined and confident", label: "Quiet + refined" },
-        { value: "bold and high-contrast", label: "Bold + high contrast" },
-        { value: "warm, optimistic and human", label: "Warm + human" },
+        { value: "quiet, refined and confident", label: "Ruhig + edel" },
+        { value: "bold and high-contrast", label: "Mutig + kontrastreich" },
+        { value: "warm, optimistic and human", label: "Warm + menschlich" },
       ],
     },
   ],
@@ -177,13 +177,13 @@ function ShotDirection({ format, values, onChange }) {
   if (!fields.length) return null;
 
   return (
-    <section className="shot-direction" aria-label="Shot direction">
+    <section className="shot-direction" aria-label="Bildregie">
       <div className="shot-direction-head">
         <div>
-          <strong>Direct the shot</strong>
-          <span>Optional choices that guide the rewrite</span>
+          <strong>Führe Regie</strong>
+          <span>Optionale Auswahl, die den Prompt-Entwurf lenkt</span>
         </div>
-        <span className="shot-direction-mode">{format === "ugc" ? "UGC recipe" : "Creative recipe"}</span>
+        <span className="shot-direction-mode">{format === "ugc" ? "UGC-Rezept" : "Kreativ-Rezept"}</span>
       </div>
       <div className="shot-direction-fields">
         {fields.map((field) => (
@@ -287,17 +287,17 @@ function MenuSelect({ value, options, onChange, placeholder, ariaLabel, classNam
 }
 
 const PRICE_UNITS = {
-  images: "image",
-  megapixels: "megapixel",
-  "processed megapixels": "processed megapixel",
-  seconds: "second",
-  "compute seconds": "compute second",
-  units: "unit",
+  images: "Bild",
+  megapixels: "Megapixel",
+  "processed megapixels": "verarbeitetes Megapixel",
+  seconds: "Sekunde",
+  "compute seconds": "Rechen-Sekunde",
+  units: "Einheit",
 };
 
 function modelPrice(model) {
   const pricing = model?.pricing;
-  if (!pricing) return "Price unavailable";
+  if (!pricing) return "Preis nicht verfügbar";
   const amount = Number(pricing.price);
   const value = amount < 0.01
     ? amount.toFixed(5).replace(/0+$/, "").replace(/\.$/, "")
@@ -413,7 +413,7 @@ function ModelPicker({ model, models, onChange, referenceActive, refs = [] }) {
       <button
         type="button"
         className="model-picker-trigger"
-        aria-label={`Change model, current ${model.label}, ${modelKindLabel(model)}`}
+        aria-label={`Modell wechseln, aktuell ${model.label}, ${modelKindLabel(model)}`}
         aria-haspopup="listbox"
         aria-expanded={open}
         onClick={() => setOpen((current) => {
@@ -437,31 +437,31 @@ function ModelPicker({ model, models, onChange, referenceActive, refs = [] }) {
         <div ref={popoverRef} className="model-picker-popover" style={popoverStyle ?? undefined}>
           <div className="model-picker-head">
             <div className="model-picker-head-copy">
-              <strong>Choose a model</strong>
-              <span>Start with the output type</span>
+              <strong>Modell wählen</strong>
+              <span>Starte mit dem Ausgabetyp</span>
             </div>
             <div className="model-picker-head-actions">
-              <span className="model-picker-count">{models.length} available</span>
+              <span className="model-picker-count">{models.length} verfügbar</span>
               {kindFilter !== "all" && (
                 <button
                   type="button"
                   className={`model-filter-pin${pinnedFilter === kindFilter ? " active" : ""}`}
                   aria-pressed={pinnedFilter === kindFilter}
                   onClick={togglePinnedFilter}
-                  title={pinnedFilter === kindFilter ? "Remove this default" : `Open ${modelKindLabel({ kind: kindFilter })} models by default`}
+                  title={pinnedFilter === kindFilter ? "Standard entfernen" : "Diese Auswahl als Standard öffnen"}
                 >
                   <i aria-hidden="true" />
-                  {pinnedFilter === kindFilter ? "Default" : "Make default"}
+                  {pinnedFilter === kindFilter ? "Standard" : "Als Standard"}
                 </button>
               )}
             </div>
           </div>
-          <div className="model-kind-filter" role="group" aria-label="Filter models by output type">
-            <span className="model-kind-filter-label">Output</span>
+          <div className="model-kind-filter" role="group" aria-label="Modelle nach Ausgabetyp filtern">
+            <span className="model-kind-filter-label">Ausgabe</span>
             <div className="model-kind-filter-options">
               {[
-                { id: "all", label: "All", count: models.length },
-                { id: "image", label: "Image", count: kindCounts.image ?? 0 },
+                { id: "all", label: "Alle", count: models.length },
+                { id: "image", label: "Bild", count: kindCounts.image ?? 0 },
                 { id: "video", label: "Video", count: kindCounts.video ?? 0 },
               ].filter((filter) => filter.id === "all" || filter.count > 0).map((filter) => (
                 <button
@@ -469,7 +469,7 @@ function ModelPicker({ model, models, onChange, referenceActive, refs = [] }) {
                   type="button"
                   className={`model-kind-filter-button${kindFilter === filter.id ? " active" : ""}`}
                   aria-pressed={kindFilter === filter.id}
-                  aria-label={filter.id === "all" ? "Show all models" : `Switch output to ${filter.label}`}
+                  aria-label={filter.id === "all" ? "Alle Modelle anzeigen" : `Ausgabe auf ${filter.label} umstellen`}
                   onClick={() => chooseFilter(filter.id)}
                 >
                   <span className={`model-kind-filter-mark ${filter.id}`} aria-hidden="true" />
@@ -484,11 +484,11 @@ function ModelPicker({ model, models, onChange, referenceActive, refs = [] }) {
             className="model-search"
             type="search"
             value={query}
-            placeholder="Search models"
-            aria-label="Search models"
+            placeholder="Modelle durchsuchen"
+            aria-label="Modelle durchsuchen"
             onChange={(event) => setQuery(event.target.value)}
           />
-          <div className="model-list" role="listbox" aria-label="Available models">
+          <div className="model-list" role="listbox" aria-label="Verfügbare Modelle">
             {filteredModels.map((candidate) => (
               <button
                 type="button"
@@ -507,20 +507,20 @@ function ModelPicker({ model, models, onChange, referenceActive, refs = [] }) {
                   <b>{candidate.label}</b>
                   <small>
                     {candidate.vendor} · {modelLaneLabel(candidate)} · {modelPrice(candidate)}
-                    {candidate.capabilities?.modalities?.length ? ` · takes ${candidate.capabilities.modalities.join(" + ")}` : ""}
+                    {candidate.capabilities?.modalities?.length ? ` · nimmt ${candidate.capabilities.modalities.join(" + ")}` : ""}
                   </small>
                 </span>
                 <span className="model-option-tail">
                   <span className={`model-option-kind kind-${candidate.kind}`}>{modelKindLabel(candidate)}</span>
-                  {candidate.id === popularModelId && <em className="model-option-recommended">Popular</em>}
-                  {candidate.tier === "fastest" && <em>Fast</em>}
-                  {candidate.id === model.id && <strong aria-label="Selected">✓</strong>}
+                  {candidate.id === popularModelId && <em className="model-option-recommended">Beliebt</em>}
+                  {candidate.tier === "fastest" && <em>Schnell</em>}
+                  {candidate.id === model.id && <strong aria-label="Ausgewählt">✓</strong>}
                 </span>
               </button>
             ))}
             {!filteredModels.length && (
               <div className="model-empty">
-                No {kindFilter === "all" ? "models" : `${kindFilter} models`} match “{query}”.
+                Keine {kindFilter === "all" ? "Modelle" : `${kindFilter === "image" ? "Bild" : "Video"}-Modelle`} passen zu „{query}“.
               </div>
             )}
           </div>
@@ -547,10 +547,10 @@ export default function PromptBar({
         <div className="bar-loading" aria-busy="true">
           <span className="loading-orb" aria-hidden="true" />
           <div>
-            <strong>Connecting to the model catalog</strong>
-            <span>Loading the controls for your first shot.</span>
+            <strong>Verbindung zum Modell-Katalog</strong>
+            <span>Die Regler für dein erstes Motiv werden geladen.</span>
           </div>
-          <small>Just a moment</small>
+          <small>Einen Moment</small>
         </div>
       </div>
     );
@@ -592,15 +592,15 @@ export default function PromptBar({
   }[type])).filter(Boolean).join(",");
   const acceptedLabel = acceptedModalities.map((type) => type === "document" ? "PDF" : type).join(", ");
   const attachmentHint = directInputs.length === 0 && referenceModel
-    ? `Attaching an image switches to ${referenceModel.label}`
+    ? `Mit einem Bild wechselt das Studio zu ${referenceModel.label}`
     : acceptedLabel
-    ? `This model accepts ${acceptedLabel}`
-    : "Choose a compatible model first";
+    ? `Dieses Modell akzeptiert: ${acceptedLabel}`
+    : "Wähle zuerst ein passendes Modell";
   const quickFormats = [
-    { id: "ugc", label: "UGC ad" },
-    { id: "none", label: "Freeform" },
+    { id: "ugc", label: "UGC-Werbung" },
+    { id: "none", label: "Freiform" },
     { id: "unboxing", label: "Unboxing" },
-    { id: "product", label: "Product still" },
+    { id: "product", label: "Produktfoto" },
   ];
   const quickFormatIds = new Set(quickFormats.map(({ id }) => id));
   const otherFormats = (catalog.formats ?? []).filter(({ id }) => !quickFormatIds.has(id));
@@ -614,8 +614,8 @@ export default function PromptBar({
   return (
     <div className="bar-wrap">
       <div className="bar">
-        <div className="preset-row" aria-label="Creation mode">
-          <span className="preset-label">Mode</span>
+        <div className="preset-row" aria-label="Erstellungsmodus">
+          <span className="preset-label">Modus</span>
           {quickFormats.map((preset) => (
             <button
               key={preset.id}
@@ -626,14 +626,14 @@ export default function PromptBar({
               {preset.label}
             </button>
           ))}
-          {format === "ugc" && <span className="preset-detail">one creator / one beat / phone-native</span>}
+          {format === "ugc" && <span className="preset-detail">eine Person / ein Ablauf / Handy-Look</span>}
           {otherFormats.length > 0 && (
             <div className={`preset-more${quickFormatIds.has(format) ? "" : " on"}`}>
               <MenuSelect
                 value={quickFormatIds.has(format) ? "" : format}
                 options={otherFormatOptions}
-                placeholder="More modes"
-                ariaLabel="More creation modes"
+                placeholder="Weitere Modi"
+                ariaLabel="Weitere Erstellungsmodi"
                 onChange={setFormat}
               />
             </div>
@@ -659,8 +659,8 @@ export default function PromptBar({
                     type="button"
                     className="attach-remove"
                     onClick={() => onRemoveRef(i)}
-                    aria-label={`Remove ${r.name}`}
-                    title="Remove reference"
+                    aria-label={`${r.name} entfernen`}
+                    title="Referenz entfernen"
                   >×</button>
                 </span>
               ))}
@@ -674,13 +674,13 @@ export default function PromptBar({
               onClick={() => setShowDropzone(true)}
               disabled={busy || !canAttachMedia}
               aria-expanded={false}
-              aria-label="Add input media"
+              aria-label="Eingabe-Medien hinzufügen"
               title={
                 imageInputFor(model)
-                  ? `Attach a reference image using ${modelLaneLabel(model)}`
+                  ? `Referenzbild anhängen (${modelLaneLabel(model)})`
                   : referenceModel
-                  ? `Attach a reference image, this switches to ${modelLaneLabel(referenceModel)}`
-                  : "This model does not take a reference image"
+                  ? `Referenzbild anhängen — wechselt zu ${modelLaneLabel(referenceModel)}`
+                  : "Dieses Modell nimmt kein Referenzbild"
               }
             >
               +
@@ -702,7 +702,7 @@ export default function PromptBar({
             id="prompt-idea"
             name="prompt"
             value={idea}
-            placeholder="Describe what you want to make..."
+            placeholder="Beschreibe, was du erstellen willst…"
             onChange={(e) => setIdea(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
@@ -717,7 +717,7 @@ export default function PromptBar({
           />
 
           <button type="button" className="go" onClick={rewritten ? onGenerate : onOptimize} disabled={busy || !ready}>
-            {running ? "Running" : busy ? "Working" : rewritten ? "Generate" : "Refine prompt"}
+            {running ? "Läuft…" : busy ? "Arbeitet…" : rewritten ? "Generieren" : "Prompt verfeinern"}
           </button>
         </div>
 
@@ -727,7 +727,7 @@ export default function PromptBar({
               className={`dropzone${dragging ? " dragging" : ""}`}
               role="button"
               tabIndex={canAttachMedia ? 0 : -1}
-              aria-label="Add input media"
+              aria-label="Eingabe-Medien hinzufügen"
               aria-disabled={!canAttachMedia}
               onClick={() => {
                 if (canAttachMedia && !busy) fileRef.current?.click();
@@ -755,26 +755,26 @@ export default function PromptBar({
                 <span className="dropzone-sweep" />
               </div>
               <div className="dropzone-copy">
-                <strong>{dragging ? "Release to attach" : "Drop media here"}</strong>
-                <span>{attachmentHint} · or click to browse</span>
+                <strong>{dragging ? "Loslassen zum Anhängen" : "Medien hier ablegen"}</strong>
+                <span>{attachmentHint} · oder klicken zum Auswählen</span>
               </div>
               {refs.length > 0 && (
                 <span className="dropzone-count">
-                  {refs.length} {refs.length === 1 ? "file" : "files"} attached · matched to {modelLaneLabel(model)}
+                  {refs.length} {refs.length === 1 ? "Datei" : "Dateien"} angehängt · passend zu {modelLaneLabel(model)}
                 </span>
               )}
             </div>
             <button
               type="button"
               className="dropzone-close"
-              aria-label="Close input media area"
+              aria-label="Medienbereich schließen"
               onClick={(e) => {
                 e.stopPropagation();
                 setShowDropzone(false);
                 setDragging(false);
               }}
             >
-              Close
+              Schließen
             </button>
           </div>
         )}
@@ -801,58 +801,58 @@ export default function PromptBar({
 
           {quote?.cost != null ? (
             <span className="bar-price exact" title={quote.basis}>
-              <span>Estimated total</span>
+              <span>Geschätzte Kosten</span>
               <b>${quote.cost.toFixed(3)}</b>
             </span>
           ) : quote?.confidence === "unquotable" ? (
             <span className="bar-price metered" title={quote.basis}>
-              <span className="bar-price-label">Usage-based pricing</span>
+              <span className="bar-price-label">Nutzungsbasierter Preis</span>
               <span className="bar-price-rate">
                 <strong>${quote.unit_price}</strong>
-                <span>per {PRICE_UNITS[quote.unit] ?? quote.unit}</span>
+                <span>pro {PRICE_UNITS[quote.unit] ?? quote.unit}</span>
               </span>
-              <small>Exact total shown after generation</small>
+              <small>Exakter Betrag nach der Generierung</small>
             </span>
           ) : null}
         </div>
       </div>
 
       {rewritten && (
-        <section className="rewrite" aria-label="Editable prompt draft">
+        <section className="rewrite" aria-label="Bearbeitbarer Prompt-Entwurf">
           <div className="rewrite-head">
             <div className="rewrite-title">
-              <strong>Prompt draft</strong>
+              <strong>Prompt-Entwurf</strong>
               <span>
                 {rewritten.optimized
-                  ? `Tuned for ${model.label}`
-                  : `Sent as written · ${rewritten.reason}`}
+                  ? `Abgestimmt auf ${model.label}`
+                  : `Wird unverändert gesendet · ${rewritten.reason}`}
               </span>
             </div>
             <div className="rewrite-actions">
-              <button type="button" className="rewrite-action" onClick={() => setRewritten(null)}>Discard</button>
+              <button type="button" className="rewrite-action" onClick={() => setRewritten(null)}>Verwerfen</button>
               <button
                 type="button"
                 className="rewrite-action"
                 aria-expanded={openRewrite}
                 onClick={() => setOpenRewrite((v) => !v)}
               >
-                {openRewrite ? "Hide" : "Edit draft"}
+                {openRewrite ? "Ausblenden" : "Entwurf bearbeiten"}
               </button>
             </div>
           </div>
           {openRewrite && (
             <div className="rewrite-body">
-              <label htmlFor="rewritten-prompt">Edit the wording before you generate.</label>
+              <label htmlFor="rewritten-prompt">Passe die Formulierung an, bevor du generierst.</label>
               <textarea
                 id="rewritten-prompt"
                 name="rewritten-prompt"
-                aria-label="Editable rewritten prompt"
+                aria-label="Bearbeitbarer, umgeschriebener Prompt"
                 value={rewritten.prompt}
                 onChange={(e) => setRewritten({ ...rewritten, prompt: e.target.value })}
               />
               <div className="rewrite-foot">
-                <span>{rewriteWords} {rewriteWords === 1 ? "word" : "words"}</span>
-                <span>Your edits are used for the next generation.</span>
+                <span>{rewriteWords} {rewriteWords === 1 ? "Wort" : "Wörter"}</span>
+                <span>Deine Änderungen werden für die nächste Generierung verwendet.</span>
               </div>
             </div>
           )}

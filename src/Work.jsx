@@ -3,29 +3,29 @@ import React, { useEffect, useRef, useState } from "react";
 // Results, big. Each one keeps its own price and billing confidence.
 
 const FORMAT_LABELS = {
-  ugc: "UGC ad",
+  ugc: "UGC-Werbung",
   unboxing: "Unboxing",
-  hypermotion: "Hyper motion",
-  tvspot: "TV spot",
-  product: "Product still",
-  poster: "Ad with headline",
+  hypermotion: "Hyper-Motion",
+  tvspot: "TV-Spot",
+  product: "Produktfoto",
+  poster: "Anzeige mit Headline",
 };
 
 export default function Work({ job, shots, standalone = false, onDelete }) {
   return (
     <div className={`wall results-wall${standalone ? " standalone" : ""}`}>
       <div className="wall-head">
-        <h2>{standalone ? "Library" : "Your results"}</h2>
-        <span>{shots.length} {shots.length === 1 ? "result" : "results"}</span>
+        <h2>{standalone ? "Bibliothek" : "Deine Ergebnisse"}</h2>
+        <span>{shots.length} {shots.length === 1 ? "Ergebnis" : "Ergebnisse"}</span>
         <div className="rule" />
-        <span>${shots.reduce((a, s) => a + (Number(s.cost) || 0), 0).toFixed(3)} spent</span>
+        <span>${shots.reduce((a, s) => a + (Number(s.cost) || 0), 0).toFixed(3)} ausgegeben</span>
       </div>
 
       {!job && !shots.length ? (
         <div className="results-empty">
-          <strong>No results yet</strong>
-          <span>Your generated images and videos will appear here.</span>
-          <a href="#create">Create your first shot</a>
+          <strong>Noch keine Ergebnisse</strong>
+          <span>Deine erstellten Bilder, Videos und Audios erscheinen hier.</span>
+          <a href="#create">Erstelle dein erstes Motiv</a>
         </div>
       ) : (
         <div className="masonry">
@@ -46,7 +46,7 @@ function Job({ job }) {
       <div className="meta">
         <span>{job.model ?? ""}</span>
         <span>
-          {job.queue_position != null ? `queue ${job.queue_position}` : ""}
+          {job.queue_position != null ? `Warteschlange ${job.queue_position}` : ""}
           {job.estimate?.cost != null ? ` · ~$${job.estimate.cost.toFixed(3)}` : ""}
         </span>
       </div>
@@ -62,7 +62,7 @@ function Shot({ shot, onDelete }) {
   const verified = shot.cost_confidence === "verified";
   const formatLabel = FORMAT_LABELS[shot.format];
   const idea = String(shot.raw_idea || shot.prompt || "").trim();
-  const resultLabel = shot.label || "Untitled result";
+  const resultLabel = shot.label || "Ergebnis ohne Titel";
 
   async function removeResult() {
     setDeleting(true);
@@ -78,6 +78,15 @@ function Shot({ shot, onDelete }) {
         const source = o.local_url || o.url;
         const isVideo =
           String(o.content_type ?? "").startsWith("video") || /\.mp4($|\?)/.test(source);
+        const isAudio =
+          String(o.content_type ?? "").startsWith("audio") || /\.(mp3|wav)($|\?)/.test(source);
+        if (isAudio) {
+          return (
+            <div key={i} className="work-audio-shell">
+              <audio controls src={source} style={{ width: "100%" }} aria-label="Erstellte Sprachausgabe" />
+            </div>
+          );
+        }
         return isVideo ? (
           <VideoPreview key={i} src={source} />
         ) : (
@@ -87,7 +96,7 @@ function Shot({ shot, onDelete }) {
 
       <span className="work-tag" title={shot.cost_basis}>
         <span className={`dot ${verified ? "verified" : "estimated"}`} />
-        {verified ? "Billed" : "Est."} ${Number(shot.cost ?? 0).toFixed(3)}
+        {shot.kind === "audio" ? `${shot.characters ?? "–"} Zeichen` : `${verified ? "Abgerechnet" : "ca."} $${Number(shot.cost ?? 0).toFixed(3)}`}
       </span>
 
       <div className="work-foot">
@@ -98,12 +107,12 @@ function Shot({ shot, onDelete }) {
           </div>
           <div className="work-actions">
             <button type="button" onClick={() => setDetailsOpen((value) => !value)} aria-expanded={detailsOpen}>
-              {detailsOpen ? "Hide details" : "Details"}
+              {detailsOpen ? "Details ausblenden" : "Details"}
             </button>
-            <a href={shot.outputs[0]?.local_url || shot.outputs[0]?.url} download aria-label={`Download ${resultLabel}`}>Download</a>
+            <a href={shot.outputs[0]?.local_url || shot.outputs[0]?.url} download aria-label={`${resultLabel} herunterladen`}>Herunterladen</a>
             {onDelete && shot.archive_id && (
-              <button type="button" className="work-delete" onClick={() => setConfirmingDelete(true)} aria-label={`Delete ${resultLabel}`}>
-                Delete
+              <button type="button" className="work-delete" onClick={() => setConfirmingDelete(true)} aria-label={`${resultLabel} löschen`}>
+                Löschen
               </button>
             )}
           </div>
@@ -112,26 +121,26 @@ function Shot({ shot, onDelete }) {
         {detailsOpen && (
           <div className="work-details">
             <dl>
-              <div><dt>Model</dt><dd>{shot.label}</dd></div>
-              <div><dt>Cost</dt><dd>{verified ? "Verified billed amount" : "Estimate"} · ${Number(shot.cost ?? 0).toFixed(4)}</dd></div>
-              {shot.request_id && <div><dt>Request</dt><dd>{shot.request_id}</dd></div>}
-              <div><dt>Archive</dt><dd>{shot.outputs.some((output) => output.local_url) ? "Saved locally" : "Remote copy only"}</dd></div>
+              <div><dt>Modell</dt><dd>{shot.label}</dd></div>
+              <div><dt>Kosten</dt><dd>{shot.kind === "audio" ? (shot.cost_basis ?? "ElevenLabs-Kontingent") : `${verified ? "Bestätigt abgerechnet" : "Schätzung"} · $${Number(shot.cost ?? 0).toFixed(4)}`}</dd></div>
+              {shot.request_id && <div><dt>Anfrage</dt><dd>{shot.request_id}</dd></div>}
+              <div><dt>Archiv</dt><dd>{shot.outputs.some((output) => output.local_url) ? "Lokal gespeichert" : "Nur externe Kopie"}</dd></div>
             </dl>
-            <strong>Prompt sent</strong>
+            <strong>Gesendeter Prompt</strong>
             <p>{shot.prompt}</p>
-            {shot.outputs[0]?.remote_url && <a className="hosted-copy" href={shot.outputs[0].remote_url} target="_blank" rel="noreferrer">Open fal-hosted copy ↗</a>}
+            {shot.outputs[0]?.remote_url && <a className="hosted-copy" href={shot.outputs[0].remote_url} target="_blank" rel="noreferrer">Kopie beim Anbieter öffnen ↗</a>}
           </div>
         )}
         {confirmingDelete && (
-          <div className="work-delete-confirm" role="group" aria-label={`Confirm deletion of ${resultLabel}`}>
+          <div className="work-delete-confirm" role="group" aria-label={`Löschen von ${resultLabel} bestätigen`}>
             <div>
-              <strong>Delete this result?</strong>
-              <span>Removes it from Bench and deletes the local copy. The fal-hosted copy may remain.</span>
+              <strong>Dieses Ergebnis löschen?</strong>
+              <span>Entfernt es aus dem Studio und löscht die lokale Kopie. Eine Kopie beim Anbieter kann bestehen bleiben.</span>
             </div>
             <div>
-              <button type="button" onClick={() => setConfirmingDelete(false)} disabled={deleting}>Keep it</button>
+              <button type="button" onClick={() => setConfirmingDelete(false)} disabled={deleting}>Behalten</button>
               <button type="button" className="danger" onClick={removeResult} disabled={deleting}>
-                {deleting ? "Deleting…" : "Delete result"}
+                {deleting ? "Wird gelöscht…" : "Endgültig löschen"}
               </button>
             </div>
           </div>
@@ -199,16 +208,16 @@ function VideoPreview({ src }) {
         playsInline
         preload="metadata"
         onVolumeChange={keepSoundIntentional}
-        aria-label="Generated video preview"
+        aria-label="Vorschau des erstellten Videos"
       />
       <button
         type="button"
         className={`work-sound-toggle${soundEnabled ? " enabled" : ""}`}
         onClick={() => setSoundEnabled((enabled) => !enabled)}
         aria-pressed={soundEnabled}
-        aria-label={soundEnabled ? "Mute this video" : "Unmute this video"}
+        aria-label={soundEnabled ? "Video stummschalten" : "Ton einschalten"}
       >
-        {soundEnabled ? "Sound on" : "Muted"}
+        {soundEnabled ? "Ton an" : "Stumm"}
       </button>
     </div>
   );

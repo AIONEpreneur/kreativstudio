@@ -5,11 +5,11 @@ import { sortModels } from "./modelCatalog.js";
 // model itself, and the price is on the tile because that is the whole point.
 
 const GROUPS = [
-  { lane: "t2i", head: "Image models", note: "Start with a description" },
-  { lane: "i2i", head: "Image edits", note: "Change a reference" },
-  { lane: "t2v", head: "Video models", note: "Start with a description" },
-  { lane: "i2v", head: "Image to video", note: "Animate an image" },
-  { lane: "r2v", head: "Reference video", note: "Keep a look consistent" },
+  { lane: "t2i", head: "Bild-Modelle", note: "Mit einer Beschreibung starten" },
+  { lane: "i2i", head: "Bild-Bearbeitung", note: "Eine Referenz verändern" },
+  { lane: "t2v", head: "Video-Modelle", note: "Mit einer Beschreibung starten" },
+  { lane: "i2v", head: "Bild zu Video", note: "Ein Bild animieren" },
+  { lane: "r2v", head: "Referenz-Video", note: "Einen Look konsistent halten" },
 ];
 
 export default function ModelWall({ catalog, modelId, onPick }) {
@@ -26,7 +26,7 @@ export default function ModelWall({ catalog, modelId, onPick }) {
               <h2>{g.head}</h2>
               <span>{g.note}</span>
               <div className="rule" />
-              <span>{models.length} {models.length === 1 ? "model" : "models"}</span>
+              <span>{models.length} {models.length === 1 ? "Modell" : "Modelle"}</span>
             </div>
             <div className="grid">
               {models.map((m) => (
@@ -45,7 +45,7 @@ export default function ModelWall({ catalog, modelId, onPick }) {
                     <div className="t">
                       <span
                         className={`pip${m.has_profile ? "" : " hollow"}`}
-                        title={m.has_profile ? "Prompt profile ready" : "Prompt profile not available"}
+                        title={m.has_profile ? "Prompt-Profil vorhanden" : "Kein Prompt-Profil"}
                       />
                       {m.label}
                     </div>
@@ -54,13 +54,13 @@ export default function ModelWall({ catalog, modelId, onPick }) {
                       <b>{price(m)}</b>
                     </div>
                     <div className="card-capabilities">
-                      <span>{m.kind === "video" ? "Video output" : "Image output"}</span>
+                      <span>{m.kind === "video" ? "Ausgabe: Video" : "Ausgabe: Bild"}</span>
                       <span>{m.capabilities?.modalities?.length
-                        ? `Takes ${m.capabilities.modalities.map((item) => item === "document" ? "PDF" : item).join(" + ")}`
-                        : "Prompt only"}</span>
+                        ? `Nimmt ${m.capabilities.modalities.map((item) => item === "document" ? "PDF" : item === "image" ? "Bild" : item === "video" ? "Video" : item).join(" + ")}`
+                        : "Nur Prompt"}</span>
                     </div>
-                    <span className="card-evidence">{m.capabilities?.inputs?.length ? "Schema checked" : "No media input in schema"}</span>
-                    {m.tier === "fastest" && <span className="card-tier">Fast lane</span>}
+                    <span className="card-evidence">{m.capabilities?.inputs?.length ? "Schema geprüft" : "Keine Medien-Eingabe im Schema"}</span>
+                    {m.tier === "fastest" && <span className="card-tier">Schnellspur</span>}
                   </div>
                 </button>
               ))}

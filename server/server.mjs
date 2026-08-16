@@ -53,8 +53,9 @@ loadEnv();
 
 const FAL_KEY = process.env.FAL_KEY;
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
+const ELEVENLABS_API_KEY = process.env.ELEVENLABS_API_KEY;
 if (!FAL_KEY) {
-  console.error("No FAL_KEY in ~/.env. Add one from fal.ai/dashboard/keys and restart.");
+  console.error("Kein FAL_KEY in ~/.env. Key auf fal.ai/dashboard/keys erstellen, eintragen und neu starten.");
   process.exit(1);
 }
 
@@ -577,9 +578,9 @@ Return ONLY the rewritten prompt. No preamble, no quotes, no explanation, no mar
 
 // The format presets. This is the Marketing-Studio layer, except you can read it.
 const FORMATS = {
-  none: { label: "Freeform", brief: "" },
+  none: { label: "Freiform", brief: "" },
   ugc: {
-    label: "UGC",
+    label: "UGC-Werbung",
     brief:
       "A direct-response creator ad, built as one believable social-native beat rather than a polished commercial. Keep one creator, one product, one setting, and one clear action. Use phone-native framing, natural light, slight handheld imperfection, and a real reaction. If the idea includes a spoken line, keep it short, conversational, and faithful to the user's words; never invent a product claim. Use the actual aspect ratio and duration controls instead of restating them in the prompt. For a short clip, make the beat: hook or problem, product interaction or proof, then a natural reaction. Do not write a montage, scene changes, captions, or extra people unless the user asks for them.",
   },
@@ -589,22 +590,22 @@ const FORMATS = {
       "Top-down or over-the-shoulder view of hands opening packaging and revealing the product. Tactile close-ups of the box, the lid, the reveal. Warm domestic surface, shallow depth of field, no faces needed.",
   },
   hypermotion: {
-    label: "Hyper Motion",
+    label: "Hyper-Motion",
     brief:
       "High-energy product film. Fast camera moves, whip transitions, macro detail shots, the product suspended or rotating, dramatic rim lighting against a dark ground. Every second changes. Premium launch-film energy.",
   },
   tvspot: {
-    label: "TV Spot",
+    label: "TV-Spot",
     brief:
       "Cinematic commercial framing. Locked-off or slow dolly, filmic color, a single clear hero composition, product centered and lit like a luxury ad. Calm, expensive, confident.",
   },
   product: {
-    label: "Product Still",
+    label: "Produktfoto",
     brief:
       "Clean studio product photography. Seamless sweep background, controlled soft lighting with one crisp specular highlight, product perfectly in focus and centered, catalogue-grade.",
   },
   poster: {
-    label: "Ad with Headline",
+    label: "Anzeige mit Headline",
     brief:
       "A social-ready advertisement image with legible on-image headline text. Leave deliberate empty space for the headline, keep the type short and high-contrast, and make sure the words are spelled correctly and fully visible.",
   },
@@ -675,21 +676,21 @@ function publicProviderError(error, context = "generation") {
   const lower = raw.toLowerCase();
   if (lower.includes("exhausted balance") || lower.includes("user is locked")) {
     return context === "upload"
-      ? "Your fal balance is empty, so the reference cannot be uploaded. Add credits and try again."
-      : "Your fal balance is empty. Add credits and try this generation again.";
+      ? "Dein fal-Guthaben ist leer, deshalb kann die Referenz nicht hochgeladen werden. Guthaben aufladen und erneut versuchen."
+      : "Dein fal-Guthaben ist leer. Guthaben aufladen und die Generierung erneut starten.";
   }
   if (lower.includes("content_policy_violation")) {
-    return "The model declined this request because of its content policy. Adjust the prompt or reference and try again.";
+    return "Das Modell hat die Anfrage wegen seiner Inhaltsrichtlinien abgelehnt. Passe Prompt oder Referenz an und versuche es erneut.";
   }
   if (/\b401\b|\b403\b/.test(lower)) {
-    return "fal rejected the current API credentials. Check the configured key and account access.";
+    return "fal hat die API-Zugangsdaten abgelehnt. Prüfe den eingetragenen FAL_KEY in ~/.env.";
   }
   if (/\b422\b/.test(lower)) {
-    return "This model could not accept one of the selected settings. Review the model controls and try again.";
+    return "Das Modell konnte eine der gewählten Einstellungen nicht annehmen. Prüfe die Regler und versuche es erneut.";
   }
   return context === "upload"
-    ? "The reference could not be uploaded. Please try again."
-    : "The generation could not be started. Please try again.";
+    ? "Die Referenz konnte nicht hochgeladen werden. Bitte erneut versuchen."
+    : "Die Generierung konnte nicht gestartet werden. Bitte erneut versuchen.";
 }
 
 // Status/result live under the base model path, not the sub-path.
@@ -837,6 +838,51 @@ async function backfillMediaMirrors() {
   if (mirrored) console.log(`mirrored ${mirrored} historical outputs locally`);
 }
 
+// ---------------------------------------------------------------- elevenlabs (Sprachausgabe)
+//
+// Gleiche Prinzipien wie bei fal: der Key bleibt auf dem Server, die fertige
+// Audiodatei wird lokal gespiegelt, und jeder Lauf landet im Verlauf. ElevenLabs
+// rechnet in Zeichen-Kontingent (Credits) statt in Dollar, deshalb wird hier die
+// Zeichenzahl festgehalten statt ein erfundener Dollarbetrag.
+
+const ELEVEN_API = "https://api.elevenlabs.io/v1";
+const ELEVEN_MODELS = [
+  { id: "eleven_multilingual_v2", label: "Multilingual v2", note: "Beste Qualität, sehr gutes Deutsch", credits_per_char: 1 },
+  { id: "eleven_turbo_v2_5", label: "Turbo v2.5", note: "Schnell und halber Verbrauch", credits_per_char: 0.5 },
+];
+const ELEVEN_MODEL_IDS = new Set(ELEVEN_MODELS.map((m) => m.id));
+const ELEVEN_MAX_CHARS = 5000;
+let VOICE_CACHE = null;
+
+async function elevenVoices({ force = false } = {}) {
+  if (!force && VOICE_CACHE && Date.now() - VOICE_CACHE.fetched_at_ms < 10 * 60 * 1000) return VOICE_CACHE;
+  const res = await fetch(`${ELEVEN_API}/voices`, { headers: { "xi-api-key": ELEVENLABS_API_KEY } });
+  if (!res.ok) throw new Error(`elevenlabs voices HTTP ${res.status}`);
+  const payload = await res.json();
+  VOICE_CACHE = {
+    fetched_at_ms: Date.now(),
+    voices: (payload.voices ?? []).map((voice) => ({
+      voice_id: voice.voice_id,
+      name: voice.name,
+      category: voice.category ?? null,
+      labels: voice.labels ?? {},
+      preview_url: voice.preview_url ?? null,
+    })),
+  };
+  return VOICE_CACHE;
+}
+
+function publicElevenError(error) {
+  const raw = String(error?.message ?? error ?? "").toLowerCase();
+  if (raw.includes("401") || raw.includes("403")) {
+    return "ElevenLabs hat den API-Key abgelehnt. Prüfe den ELEVENLABS_API_KEY in ~/.env.";
+  }
+  if (raw.includes("quota") || raw.includes("credits")) {
+    return "Dein ElevenLabs-Kontingent ist aufgebraucht. Im ElevenLabs-Konto aufstocken und erneut versuchen.";
+  }
+  return "Die Sprachausgabe konnte nicht erstellt werden. Bitte erneut versuchen.";
+}
+
 // ---------------------------------------------------------------- app
 
 const app = express();
@@ -860,6 +906,7 @@ app.get("/api/health", (_req, res) => {
     persistence: "sqlite",
     storage: store.storageSummary(),
     rewriter: GOOGLE_API_KEY ? "gemini-3-flash-preview" : "disabled (no GOOGLE_API_KEY)",
+    elevenlabs: ELEVENLABS_API_KEY ? "configured" : "disabled (no ELEVENLABS_API_KEY)",
   });
 });
 
@@ -1012,7 +1059,7 @@ app.get("/api/tooling", (_req, res) => {
         claude_code: "~/.claude/skills/bench-studio",
       },
     },
-    tools: ["list_models", "get_model_capabilities", "upload_media", "create_media", "list_results", "get_usage", "sync_models", "create_website", "create_document", "list_projects", "get_project"],
+    tools: ["list_models", "get_model_capabilities", "upload_media", "create_media", "list_results", "get_usage", "sync_models"],
   });
 });
 
@@ -1057,6 +1104,92 @@ app.post("/api/catalog/sync", async (_req, res) => {
 
 app.get("/api/spend", (_req, res) => res.json(spendSummary()));
 
+app.get("/api/audio/status", (_req, res) => {
+  res.json({
+    configured: Boolean(ELEVENLABS_API_KEY),
+    models: ELEVEN_MODELS,
+    max_chars: ELEVEN_MAX_CHARS,
+  });
+});
+
+app.get("/api/audio/voices", async (_req, res) => {
+  if (!ELEVENLABS_API_KEY) return res.status(400).json({ error: "Kein ELEVENLABS_API_KEY in ~/.env eingetragen." });
+  try {
+    const { voices } = await elevenVoices();
+    res.json({ voices });
+  } catch (error) {
+    console.warn(`elevenlabs voices failed: ${String(error.message ?? error)}`);
+    res.status(502).json({ error: publicElevenError(error) });
+  }
+});
+
+app.post("/api/audio/tts", async (req, res) => {
+  if (!ELEVENLABS_API_KEY) return res.status(400).json({ error: "Kein ELEVENLABS_API_KEY in ~/.env eingetragen." });
+  const { text, voiceId, voiceName = null, modelId = "eleven_multilingual_v2" } = req.body ?? {};
+  const cleanText = String(text ?? "").trim();
+  if (!cleanText) return res.status(400).json({ error: "Bitte einen Text eingeben." });
+  if (cleanText.length > ELEVEN_MAX_CHARS) {
+    return res.status(400).json({ error: `Der Text ist zu lang (${cleanText.length} Zeichen). Maximal ${ELEVEN_MAX_CHARS} Zeichen pro Lauf.` });
+  }
+  if (!voiceId || !/^[a-zA-Z0-9]+$/.test(String(voiceId))) return res.status(400).json({ error: "Bitte eine Stimme auswählen." });
+  if (!ELEVEN_MODEL_IDS.has(modelId)) return res.status(400).json({ error: "Unbekanntes ElevenLabs-Modell." });
+
+  try {
+    const response = await fetch(`${ELEVEN_API}/text-to-speech/${voiceId}?output_format=mp3_44100_128`, {
+      method: "POST",
+      headers: { "xi-api-key": ELEVENLABS_API_KEY, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        text: cleanText,
+        model_id: modelId,
+        // Ruhige, fließende Voiceover-Einstellung statt Staccato.
+        voice_settings: { stability: 0.62, similarity_boost: 0.75, style: 0.12 },
+      }),
+    });
+    if (!response.ok) {
+      const detail = (await response.text()).slice(0, 400);
+      throw new Error(`elevenlabs tts ${response.status}: ${detail}`);
+    }
+    const audio = Buffer.from(await response.arrayBuffer());
+    const requestId = `tts-${Date.now().toString(36)}-${randomUUID().slice(0, 8)}`;
+    const filename = `${requestId}-0.mp3`;
+    writeFileSync(join(OUTPUTS, filename), audio);
+
+    const model = ELEVEN_MODELS.find((m) => m.id === modelId);
+    const credits = Math.ceil(cleanText.length * (model?.credits_per_char ?? 1));
+    const row = {
+      ts: new Date().toISOString(),
+      model: `elevenlabs/${modelId}`,
+      label: voiceName ? `Stimme: ${voiceName}` : "ElevenLabs Sprachausgabe",
+      vendor: "ElevenLabs",
+      kind: "audio",
+      lane: "tts",
+      format: "none",
+      raw_idea: cleanText.slice(0, 280),
+      prompt: cleanText,
+      reference_count: 0,
+      params: { voice_id: voiceId, model_id: modelId },
+      request_id: requestId,
+      cost: null,
+      cost_confidence: "kontingent",
+      cost_basis: `${cleanText.length} Zeichen ≈ ${credits} Credits vom ElevenLabs-Kontingent`,
+      characters: cleanText.length,
+      credits_estimate: credits,
+      outputs: [{
+        url: `/media/${filename}`,
+        remote_url: null,
+        local_path: join(OUTPUTS, filename),
+        local_url: `/media/${filename}`,
+        content_type: "audio/mpeg",
+      }],
+    };
+    appendLedger(row);
+    res.json({ ledger: { ...row, archive_id: undefined }, spend: spendSummary() });
+  } catch (error) {
+    console.warn(`elevenlabs tts failed: ${String(error.message ?? error)}`);
+    res.status(502).json({ error: publicElevenError(error) });
+  }
+});
+
 app.get("/api/fal/billing", async (req, res) => {
   const billing = await fetchFalBilling({ force: req.query.refresh === "1" });
   const { fetched_at_ms: _privateTimestamp, ...publicBilling } = billing;
@@ -1066,7 +1199,7 @@ app.get("/api/fal/billing", async (req, res) => {
 // What will this cost, before I press go.
 app.post("/api/quote", (req, res) => {
   const { modelId, params = {} } = req.body ?? {};
-  if (!byId.has(modelId)) return res.status(400).json({ error: `unknown model ${modelId}` });
+  if (!byId.has(modelId)) return res.status(400).json({ error: `Unbekanntes Modell: ${modelId}` });
   res.json(estimateCost(modelId, params));
 });
 
@@ -1124,7 +1257,7 @@ app.post("/api/reload", (_req, res) => { reloadKnowledge(); res.json({ ok: true,
 
 app.post("/api/upload", upload.single("file"), async (req, res) => {
   try {
-    if (!req.file) return res.status(400).json({ error: "no file" });
+    if (!req.file) return res.status(400).json({ error: "Keine Datei erhalten (no file)." });
     const local = localUploadCopy(req.file);
     const url = await falUpload(req.file.buffer, req.file.originalname, req.file.mimetype);
     const record = { ...local, remote_url: url };
@@ -1148,14 +1281,14 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
 app.post("/api/optimize", async (req, res) => {
   try {
     const { idea, modelId, format = "none", hasReference = false, refCount = 0, params = {}, shotSettings = {} } = req.body ?? {};
-    if (!idea || !modelId) return res.status(400).json({ error: "idea and modelId required" });
+    if (!idea || !modelId) return res.status(400).json({ error: "Idee und Modell werden benötigt." });
     const model = byId.get(modelId);
     if ((hasReference || refCount > 0) && model && !imageInputForModel(model)) {
       const pair = model.pair ? byId.get(model.pair) : null;
       return res.status(400).json({
         error: pair
-          ? `${model.label} cannot use a reference image. Use ${pair.label} for this reference instead.`
-          : `${model.label} does not accept reference images. Choose an image-capable model.`,
+          ? `${model.label} kann kein Referenzbild verwenden. Nimm dafür ${pair.label}.`
+          : `${model.label} akzeptiert keine Referenzbilder. Wähle ein bildfähiges Modell.`,
       });
     }
     res.json(await optimizePrompt({
@@ -1174,8 +1307,8 @@ app.post("/api/optimize", async (req, res) => {
 app.post("/api/generate", async (req, res) => {
   const { modelId, prompt, params = {}, referenceUrls = [], inputAssets = [], format = "none", rawIdea = null, shotSettings = {} } = req.body ?? {};
   const model = byId.get(modelId);
-  if (!model) return res.status(400).json({ error: `unknown model ${modelId}` });
-  if (!prompt) return res.status(400).json({ error: "prompt required" });
+  if (!model) return res.status(400).json({ error: `Unbekanntes Modell: ${modelId}` });
+  if (!prompt) return res.status(400).json({ error: "Bitte einen Prompt angeben." });
 
   // Never let a reference silently disappear. The client normally switches to
   // the paired image-capable endpoint, but this guard protects direct callers
@@ -1190,26 +1323,26 @@ app.post("/api/generate", async (req, res) => {
     const pair = model.pair ? byId.get(model.pair) : null;
     return res.status(400).json({
       error: pair
-        ? `${model.label} cannot use a reference image. Use ${pair.label} for this reference instead.`
-        : `${model.label} does not accept reference images. Choose an image-capable model.`,
+        ? `${model.label} kann kein Referenzbild verwenden. Nimm dafür ${pair.label}.`
+        : `${model.label} akzeptiert keine Referenzbilder. Wähle ein bildfähiges Modell.`,
     });
   }
   for (const asset of normalizedAssets) {
     const spec = inputSpecs.get(asset.field);
     if (!asset.url || !asset.field || !spec) {
-      return res.status(400).json({ error: `${model.label} cannot use the attached ${asset.media_type ?? "media"} in that input slot.` });
+      return res.status(400).json({ error: `${model.label} kann die angehängte Datei (${asset.media_type ?? "Medium"}) in diesem Eingabefeld nicht verwenden.` });
     }
     if (asset.media_type && spec.modality !== "mixed" && asset.media_type !== spec.modality) {
-      return res.status(400).json({ error: `${asset.field} accepts ${spec.modality}, not ${asset.media_type}.` });
+      return res.status(400).json({ error: `${asset.field} akzeptiert ${spec.modality}, nicht ${asset.media_type}.` });
     }
   }
   for (const spec of inputSpecs.values()) {
     const count = normalizedAssets.filter((asset) => asset.field === spec.field).length;
     if (spec.arity === "single" && count > 1) {
-      return res.status(400).json({ error: `${model.label} accepts one file in ${spec.field}. Remove ${count - 1} and try again.` });
+      return res.status(400).json({ error: `${model.label} akzeptiert eine Datei in ${spec.field}. Entferne ${count - 1} und versuche es erneut.` });
     }
     if (spec.limits?.max_items && spec.arity === "multiple" && count > spec.limits.max_items) {
-      return res.status(400).json({ error: `${model.label} accepts up to ${spec.limits.max_items} files in ${spec.field}.` });
+      return res.status(400).json({ error: `${model.label} akzeptiert bis zu ${spec.limits.max_items} Dateien in ${spec.field}.` });
     }
   }
 

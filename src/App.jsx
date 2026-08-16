@@ -5,12 +5,12 @@ import ModelWall from "./ModelWall.jsx";
 import Work from "./Work.jsx";
 import Ledger from "./Ledger.jsx";
 import Tooling from "./Tooling.jsx";
-import CreativeStudio from "./CreativeStudio.jsx";
+import Audio from "./Audio.jsx";
 import { assignInputFields, imageInputFor, mediaInputsFor, mediaTypeForFile, pairedImageModel, retainCompatibleAssets, sortModels } from "./modelCatalog.js";
 
 function viewFromHash() {
   const view = window.location.hash.slice(1);
-  return ["create", "websites", "documents", "models", "work", "connect"].includes(view) ? view : "create";
+  return ["create", "audio", "models", "work", "connect"].includes(view) ? view : "create";
 }
 
 // Params driven by the schema but kept off the bar. Model defaults are already
@@ -93,38 +93,38 @@ async function readJson(url, options) {
 function errorDetails(error) {
   const raw = String(error?.message ?? error ?? "");
   const lower = raw.toLowerCase();
-  if (lower.includes("exhausted balance") || lower.includes("user is locked") || lower.includes("fal balance is empty")) {
+  if (lower.includes("exhausted balance") || lower.includes("user is locked") || lower.includes("fal balance is empty") || lower.includes("guthaben ist leer")) {
     return {
-      title: lower.includes("upload failed") ? "Reference upload paused" : "Generation paused",
-      message: lower.includes("upload failed")
-        ? "The reference cannot be uploaded while your fal balance is empty. Add funds, then try the upload again."
-        : "Your fal balance is empty. Add funds, then return here and try again.",
-      action: "Open fal billing",
+      title: lower.includes("upload") ? "Upload pausiert" : "Generierung pausiert",
+      message: lower.includes("upload")
+        ? "Die Referenz kann nicht hochgeladen werden, weil dein fal-Guthaben leer ist. Lade Guthaben auf und versuche es erneut."
+        : "Dein fal-Guthaben ist leer. Lade Guthaben auf und versuche es dann noch einmal.",
+      action: "fal-Guthaben öffnen",
       href: "https://fal.ai/dashboard/billing",
     };
   }
   if (lower.includes("server is unavailable") || lower.includes("failed to fetch") || lower.includes("cannot reach")) {
     return {
-      title: "Studio is offline",
-      message: "The local generation server is not responding. Restart it, then retry.",
+      title: "Studio ist offline",
+      message: "Der lokale Server antwortet nicht. Starte das Studio neu und versuche es dann erneut.",
     };
   }
   if (lower.includes("reference") && (lower.includes("switched") || lower.includes("selected instead"))) {
     return {
-      title: lower.includes("removed") ? "Model switched" : "Reference-ready model selected",
+      title: lower.includes("removed") ? "Modell gewechselt" : "Referenz-fähiges Modell gewählt",
       message: raw,
       tone: "info",
     };
   }
-  if (lower.includes("cannot use the current attachments")) {
+  if (lower.includes("cannot use the current attachments") || lower.includes("kann die angehängte datei")) {
     return {
-      title: "Choose a compatible model",
+      title: "Bitte ein passendes Modell wählen",
       message: raw,
     };
   }
   return {
-    title: "Something stopped this run",
-    message: raw.replace(/^error:\s*/i, "") || "Please try again.",
+    title: "Dieser Lauf wurde gestoppt",
+    message: raw.replace(/^error:\s*/i, "") || "Bitte erneut versuchen.",
   };
 }
 
@@ -140,7 +140,7 @@ function ErrorNotice({ error, onClose }) {
         {details.href && (
           <a href={details.href} target="_blank" rel="noreferrer">{details.action}</a>
         )}
-        <button type="button" onClick={onClose} aria-label="Dismiss message">Dismiss</button>
+        <button type="button" onClick={onClose} aria-label="Meldung schließen">Schließen</button>
       </div>
     </section>
   );
@@ -148,13 +148,13 @@ function ErrorNotice({ error, onClose }) {
 
 function relativeTime(iso) {
   const elapsed = Date.now() - Date.parse(iso || "");
-  if (!Number.isFinite(elapsed) || elapsed < 0) return "pending";
+  if (!Number.isFinite(elapsed) || elapsed < 0) return "ausstehend";
   const minutes = Math.floor(elapsed / 60000);
-  if (minutes < 1) return "just now";
-  if (minutes < 60) return `${minutes}m ago`;
+  if (minutes < 1) return "gerade eben";
+  if (minutes < 60) return `vor ${minutes} Min.`;
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-  return `${Math.floor(hours / 24)}d ago`;
+  if (hours < 24) return `vor ${hours} Std.`;
+  return `vor ${Math.floor(hours / 24)} Tagen`;
 }
 
 function CatalogStatus({ catalog, syncing, onSync }) {
@@ -163,25 +163,25 @@ function CatalogStatus({ catalog, syncing, onSync }) {
   return (
     <details className="catalog-status">
       <summary>
-        <span>{status?.synced_at ? `Catalog updated ${relativeTime(status.synced_at)}` : "Checking model catalog"}</span>
+        <span>{status?.synced_at ? `Katalog aktualisiert ${relativeTime(status.synced_at)}` : "Modell-Katalog wird geprüft"}</span>
       </summary>
       <div className="catalog-status-popover">
         <div className="catalog-status-head">
           <div>
-            <strong>Live model discovery</strong>
-            <span>Automatic refresh every {status?.refresh_hours ?? 6} hours</span>
+            <strong>Automatische Modell-Suche</strong>
+            <span>Aktualisiert sich alle {status?.refresh_hours ?? 6} Stunden</span>
           </div>
-          <button type="button" onClick={onSync} disabled={syncing}>{syncing ? "Syncing…" : "Sync now"}</button>
+          <button type="button" onClick={onSync} disabled={syncing}>{syncing ? "Aktualisiert…" : "Jetzt aktualisieren"}</button>
         </div>
         <dl>
-          <div><dt>Production ready</dt><dd>{catalog?.models?.length ?? 0}</dd></div>
-          <div><dt>Relevant on fal</dt><dd>{status?.relevant_active_endpoints ?? "—"}</dd></div>
-          <div><dt>Awaiting validation</dt><dd>{newCount ?? "—"}</dd></div>
+          <div><dt>Einsatzbereit</dt><dd>{catalog?.models?.length ?? 0}</dd></div>
+          <div><dt>Relevant bei fal</dt><dd>{status?.relevant_active_endpoints ?? "—"}</dd></div>
+          <div><dt>Wartet auf Prüfung</dt><dd>{newCount ?? "—"}</dd></div>
         </dl>
-        <p>{status?.policy ?? "The production roster stays stable while fal is checked for new image and video endpoints."}</p>
+        <p>Die geprüfte Modell-Liste bleibt stabil, während fal im Hintergrund auf neue Bild- und Video-Modelle geprüft wird.</p>
         {status?.newest?.length > 0 && (
           <div className="catalog-newest">
-            <span>Newest detected</span>
+            <span>Zuletzt entdeckt</span>
             {status.newest.slice(0, 4).map((item) => (
               <a key={item.id} href={item.model_url} target="_blank" rel="noreferrer">
                 <b>{item.label}</b><small>{item.category_label}</small>
@@ -203,29 +203,29 @@ function CreditPanel({ billing, locked, refreshing, onRefresh, onClose }) {
       }).format(billing.current_balance)
     : null;
   return (
-    <aside className="credit-sheet" aria-label="fal credits">
+    <aside className="credit-sheet" aria-label="fal-Guthaben">
       <div className="credit-sheet-head">
         <div>
-          <h3>fal credits</h3>
-          <span>Generation balance for this studio</span>
+          <h3>fal-Guthaben</h3>
+          <span>Dein Guthaben für Bild- und Video-Generierung</span>
         </div>
-        <button type="button" className="ghost-btn" onClick={onClose}>Close</button>
+        <button type="button" className="ghost-btn" onClick={onClose}>Schließen</button>
       </div>
       <div className="credit-sheet-body">
         <section className={`balance-card${locked ? " locked" : ""}`}>
-          <span>{locked ? "Generation paused" : balance ? "Available balance" : "Balance"}</span>
-          <strong>{locked ? "Credits required" : balance ?? "Not available to this key"}</strong>
+          <span>{locked ? "Generierung pausiert" : balance ? "Verfügbares Guthaben" : "Guthaben"}</span>
+          <strong>{locked ? "Guthaben nötig" : balance ?? "Für diesen Key nicht abrufbar"}</strong>
           <p>{locked
-            ? "fal reported that this account is out of credits. Adding credits will unlock generation and reference uploads."
-            : billing?.reason ?? "Balance data refreshes directly from fal."}</p>
+            ? "fal meldet, dass das Guthaben aufgebraucht ist. Nach dem Aufladen funktionieren Generierung und Uploads sofort wieder."
+            : "Das Guthaben wird direkt von fal abgefragt."}</p>
         </section>
         <a className="topup-button" href={billing?.top_up_url ?? "https://fal.ai/dashboard/billing"} target="_blank" rel="noreferrer">
-          Continue to secure top-up <span aria-hidden="true">↗</span>
+          Guthaben sicher bei fal aufladen <span aria-hidden="true">↗</span>
         </a>
         <button type="button" className="refresh-balance" onClick={onRefresh} disabled={refreshing}>
-          {refreshing ? "Checking fal…" : "I’ve added credits — refresh balance"}
+          {refreshing ? "Wird geprüft…" : "Ich habe aufgeladen — Guthaben aktualisieren"}
         </button>
-        <p className="credit-security">Payment and card details stay on fal. Bench never receives or stores them.</p>
+        <p className="credit-security">Zahlungs- und Kartendaten bleiben bei fal. Dieses Studio sieht und speichert sie nie.</p>
       </div>
     </aside>
   );
@@ -312,7 +312,7 @@ export default function App() {
         if (attempt < 12) {
           retryTimer = setTimeout(() => loadCatalog(attempt + 1), Math.min(1800, 450 + attempt * 125));
         } else {
-          setError("The studio server is unavailable. Start the app again and retry.");
+          setError("Der Studio-Server ist nicht erreichbar. Starte das Studio neu und versuche es erneut.");
         }
       }
     }
@@ -363,7 +363,7 @@ export default function App() {
       const status = await readJson("/api/catalog/sync", { method: "POST" });
       setCatalog((current) => current ? { ...current, catalog_sync: status } : current);
     } catch (error) {
-      setError(`Catalog sync failed: ${error.message ?? error}`);
+      setError(`Katalog-Aktualisierung fehlgeschlagen: ${error.message ?? error}`);
     } finally {
       setSyncingCatalog(false);
     }
@@ -386,7 +386,7 @@ export default function App() {
   }
 
   async function deleteResult(shot) {
-    if (!shot?.archive_id) throw new Error("This result is not in the local archive.");
+    if (!shot?.archive_id) throw new Error("Dieses Ergebnis liegt nicht im lokalen Archiv.");
     try {
       const result = await readJson(`/api/results/${encodeURIComponent(shot.archive_id)}`, { method: "DELETE" });
       setShots((current) => current.filter((candidate) => candidate.archive_id !== shot.archive_id));
@@ -396,7 +396,7 @@ export default function App() {
         summary: result.summary,
       }));
     } catch (deleteError) {
-      setError(`Could not delete this result: ${deleteError.message ?? deleteError}`);
+      setError(`Dieses Ergebnis konnte nicht gelöscht werden: ${deleteError.message ?? deleteError}`);
       throw deleteError;
     }
   }
@@ -457,13 +457,13 @@ export default function App() {
     setBusy(true); setError(null);
     try {
       const mediaType = mediaTypeForFile(file);
-      if (mediaType === "file") throw new Error("Use an image, video, audio file, or PDF.");
+      if (mediaType === "file") throw new Error("Bitte ein Bild, Video, eine Audiodatei oder ein PDF verwenden.");
       let targetModel = model;
       if (!mediaInputsFor(targetModel, mediaType).length && mediaType === "image" && referenceModel) {
         targetModel = referenceModel;
       }
       if (!mediaInputsFor(targetModel, mediaType).length) {
-        throw new Error(`${model?.label ?? "This model"} does not accept ${mediaType} input. Choose a compatible model first.`);
+        throw new Error(`${model?.label ?? "Dieses Modell"} akzeptiert keine ${mediaType}-Eingabe. Wähle zuerst ein passendes Modell.`);
       }
       const fd = new FormData();
       fd.append("file", file);
@@ -489,8 +489,8 @@ export default function App() {
         setRewritten(null);
       }
     } catch (e) {
-      const message = `Upload failed: ${e.message ?? e}`;
-      if (/exhausted balance|user is locked/i.test(message)) setFalLocked(true);
+      const message = `Upload failed: ${e.message ?? e}`.replace("Upload failed:", "Upload fehlgeschlagen:");
+      if (/exhausted balance|user is locked|guthaben ist leer/i.test(message)) setFalLocked(true);
       setError(message);
     }
     finally { setBusy(false); }
@@ -541,7 +541,7 @@ export default function App() {
           if (!line.trim()) continue;
           const ev = JSON.parse(line);
           if (ev.phase === "error") {
-            if (/exhausted balance|user is locked/i.test(ev.error ?? "")) setFalLocked(true);
+            if (/exhausted balance|user is locked|guthaben ist leer/i.test(ev.error ?? "")) setFalLocked(true);
             setError(ev.error); setJob(null);
           }
           else if (ev.phase === "done") {
@@ -555,7 +555,7 @@ export default function App() {
     } catch (e) {
       if (e.name !== "AbortError") {
         const message = String(e.message ?? e);
-        if (/exhausted balance|user is locked/i.test(message)) setFalLocked(true);
+        if (/exhausted balance|user is locked|guthaben ist leer/i.test(message)) setFalLocked(true);
         setError(message);
       }
       setJob(null);
@@ -572,7 +572,7 @@ export default function App() {
       refsRef.current = retained.assets;
       if (retained.removed.length) {
         const count = retained.removed.length;
-        switchNotice = `Switched to ${picked.label}. Removed ${count} incompatible reference${count === 1 ? "" : "s"} because this model cannot accept ${count === 1 ? "it" : "them"}.`;
+        switchNotice = `Zu ${picked.label} gewechselt. ${count === 1 ? "Eine nicht kompatible Referenz wurde entfernt, weil dieses Modell sie" : `${count} nicht kompatible Referenzen wurden entfernt, weil dieses Modell sie`} nicht annehmen kann.`;
       }
     }
     setModelId(nextId);
@@ -584,7 +584,7 @@ export default function App() {
 
   return (
     <div className="shell">
-      <a className="skip-link" href="#main-content">Skip to workspace</a>
+      <a className="skip-link" href="#main-content">Zum Arbeitsbereich springen</a>
       <TopBar
         summary={ledger.summary}
         activeView={activeView}
@@ -602,18 +602,18 @@ export default function App() {
               {activeView === "create" && <section className="hero view-page" id="create">
                 <div className="workspace-head">
                   <div className="hero-copy">
-                    <div className="eyebrow">Create</div>
-                    <h1>Create a <em>shot</em>.</h1>
-                    <p>Choose a model, add a reference if you have one, and describe the result.</p>
+                    <div className="eyebrow">Erstellen</div>
+                    <h1>Erstelle dein <em>Motiv</em>.</h1>
+                    <p>Modell wählen, bei Bedarf eine Referenz anhängen und beschreiben, was entstehen soll.</p>
                   </div>
                 </div>
 
                 <div className="creator">
                   <div className="creator-head">
-                    <h2>Describe your shot</h2>
+                    <h2>Beschreibe dein Motiv</h2>
                     {catalog ? (
                       <CatalogStatus catalog={catalog} syncing={syncingCatalog} onSync={syncCatalog} />
-                    ) : <span>Loading models</span>}
+                    ) : <span>Modelle werden geladen</span>}
                   </div>
                   <PromptBar
                     catalog={catalog}
@@ -648,10 +648,10 @@ export default function App() {
 
                 {error && <ErrorNotice error={error} onClose={() => setError(null)} />}
                 {!error && !shots.length && !job && (
-                  <div className="hint"><span><b>Add a reference</b> if it helps. Then describe the shot in your own words.</span></div>
+                  <div className="hint"><span><b>Häng eine Referenz an</b>, wenn sie hilft. Dann beschreibe dein Motiv in deinen eigenen Worten.</span></div>
                 )}
                 {(job || shots.length > 0) && (
-                  <section className="create-results" id="create-results" aria-label="Generated media">
+                  <section className="create-results" id="create-results" aria-label="Erstellte Medien">
                     <Work job={job} shots={shots} onDelete={deleteResult} />
                   </section>
                 )}
@@ -661,11 +661,11 @@ export default function App() {
                 <section className="view-page" id="work">
                   <div className="view-heading">
                     <div>
-                      <div className="eyebrow">Results</div>
-                      <h1>Everything you made.</h1>
-                      <p>Images and videos, with the model, prompt, local copy, and actual billed cost attached.</p>
+                      <div className="eyebrow">Ergebnisse</div>
+                      <h1>Alles, was du erstellt hast.</h1>
+                      <p>Bilder, Videos und Audio — mit Modell, Prompt, lokaler Kopie und den tatsächlichen Kosten.</p>
                     </div>
-                    <a className="view-action" href="#create">Create another</a>
+                    <a className="view-action" href="#create">Neues erstellen</a>
                   </div>
                   {error && <ErrorNotice error={error} onClose={() => setError(null)} />}
                   <Work job={job} shots={shots} standalone onDelete={deleteResult} />
@@ -676,9 +676,9 @@ export default function App() {
                 <section className="view-page" id="models">
                   <div className="view-heading">
                     <div>
-                      <div className="eyebrow">Model catalog</div>
-                      <h1>Pick the right model.</h1>
-                      <p>Compare output type, accepted inputs, speed, and pricing before you commit to a run.</p>
+                      <div className="eyebrow">Modell-Katalog</div>
+                      <h1>Finde das richtige Modell.</h1>
+                      <p>Vergleiche Ausgabetyp, akzeptierte Eingaben, Tempo und Preis, bevor du einen Lauf startest.</p>
                     </div>
                   </div>
                   <ModelWall
@@ -691,9 +691,8 @@ export default function App() {
                   />
                 </section>
               )}
+              {activeView === "audio" && <Audio onGenerated={() => refreshLedger()} />}
               {activeView === "connect" && <Tooling />}
-              {activeView === "websites" && <CreativeStudio kind="website" />}
-              {activeView === "documents" && <CreativeStudio kind="document" />}
             </div>
           </main>
         </div>
