@@ -104,6 +104,28 @@ Im Browser öffnen: **http://localhost:5200** — fertig. 🎉
 
 ---
 
+## Wo werden meine Bilder und Videos gespeichert?
+
+Alles bleibt **lokal auf deinem Rechner** — in deinem Studio-Ordner unter
+`mein-kreativstudio/data/`:
+
+- **`data/outputs/`** — alle fertigen Bilder, Videos und Audio-Dateien (PNG, MP4, MP3)
+- **`data/inputs/`** — Kopien der Referenzbilder, die du hochgeladen hast
+- **`data/bench.db`** — die kleine Datenbank dazu: welcher Prompt, welches Modell, was es gekostet hat
+
+Im Alltag brauchst du diesen Ordner nicht: Der Reiter **„Ergebnisse“** zeigt
+alles mit Vorschau, und jedes Ergebnis hat einen **„Herunterladen“**-Knopf,
+mit dem du die Datei dorthin speicherst, wo du sie haben willst (z. B. in
+deinen Projektordner fürs nächste Reel).
+
+Gut zu wissen: Wenn du ein Ergebnis im Studio löschst, verschwinden die
+lokale Datei und der Eintrag im Kostenbuch — der Modell-Anbieter (fal) kann
+auf seinen Servern aber eine Kopie behalten, darauf hat das Studio keinen
+Zugriff. Und wer viel Video generiert: Der `data/`-Ordner wächst mit der
+Zeit — alte Ergebnisse kannst du einfach im Studio löschen.
+
+---
+
 ## Häufige Fragen
 
 **Muss ich programmieren können oder das Terminal benutzen?**
