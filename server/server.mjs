@@ -1337,6 +1337,14 @@ app.post("/api/generate", async (req, res) => {
     }
   }
   for (const spec of inputSpecs.values()) {
+    if (!spec.required) continue;
+    const count = normalizedAssets.filter((asset) => asset.field === spec.field).length;
+    if (count === 0) {
+      const noun = spec.modality === "image" ? "ein Bild" : spec.modality === "video" ? "ein Video" : spec.modality === "audio" ? "eine Audiodatei" : "eine Datei";
+      return res.status(400).json({ error: `${model.label} braucht zwingend ${noun} als Ausgangsmaterial. Häng ${noun} an (Plus-Knopf) oder wähle ein Modell, das ohne Referenz startet.` });
+    }
+  }
+  for (const spec of inputSpecs.values()) {
     const count = normalizedAssets.filter((asset) => asset.field === spec.field).length;
     if (spec.arity === "single" && count > 1) {
       return res.status(400).json({ error: `${model.label} akzeptiert eine Datei in ${spec.field}. Entferne ${count - 1} und versuche es erneut.` });

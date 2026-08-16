@@ -116,6 +116,12 @@ function errorDetails(error) {
       tone: "info",
     };
   }
+  if (lower.includes("braucht zwingend")) {
+    return {
+      title: "Dieses Modell braucht eine Referenz",
+      message: raw,
+    };
+  }
   if (lower.includes("cannot use the current attachments") || lower.includes("kann die angehängte datei")) {
     return {
       title: "Bitte ein passendes Modell wählen",
@@ -517,6 +523,13 @@ export default function App() {
 
     const assignment = assignInputFields(model, refs);
     if (!assignment.ok) return setError(assignment.reason);
+    const missingSpec = (model?.capabilities?.inputs ?? []).find((spec) =>
+      spec.required && !assignment.assets.some((asset) => asset.field === spec.field)
+    );
+    if (missingSpec) {
+      const noun = missingSpec.modality === "image" ? "ein Bild" : missingSpec.modality === "video" ? "ein Video" : missingSpec.modality === "audio" ? "eine Audiodatei" : "eine Datei";
+      return setError(`${model.label} braucht zwingend ${noun} als Ausgangsmaterial. Häng ${noun} an (Plus-Knopf) oder wähle ein Modell, das ohne Referenz startet.`);
+    }
 
     setBusy(true); setError(null);
     setJob({ phase: "submitting", model: model?.label });
