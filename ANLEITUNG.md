@@ -27,77 +27,55 @@ kosten wird, und danach, was es wirklich gekostet hat.
 
 ---
 
-## Der einfachste Weg: Lass Claude das für dich machen
+## So bekommst du dein Studio
 
-Wenn du **Claude Code** hast (kennst du aus dem Sprint 😉), musst du fast
-nichts selbst tun. Öffne Claude Code und füge diesen Auftrag ein:
+Du brauchst **kein Terminal** und musst nichts von Hand installieren —
+das übernimmt Claude für dich.
 
-> Installiere mir das Kreativstudio von <DEIN-REPO-LINK-HIER> in einen Ordner
-> „mein-kreativstudio“. Führe das Skript installieren.sh aus, hilf mir danach,
-> meinen fal.ai-Key in ~/.env einzutragen (ich erstelle ihn auf
-> fal.ai/dashboard/keys), starte das Studio mit npm run dev und sag mir, wann
-> ich http://localhost:5200 öffnen kann.
+1. Öffne **Claude Code** (kennst du aus dem Sprint 😉).
+2. Kopiere diesen Auftrag hinein und schick ihn ab:
 
-Claude erledigt den Rest und sagt dir genau, wann du was tun musst.
-Die Schritte darunter brauchst du dann nur, wenn du es lieber selbst machst.
+> Lies das Repository https://github.com/AIONEpreneur/kreativstudio und installiere mir daraus das
+> Kreativstudio in einen Ordner „mein-kreativstudio“. Führe das Skript
+> installieren.sh aus. Hilf mir danach Schritt für Schritt, meinen
+> fal.ai-Key einzutragen — ich erstelle ihn auf fal.ai/dashboard/keys, sag
+> mir genau, wo ich klicken muss. Starte dann das Studio und sag mir, wann
+> ich http://localhost:5200 im Browser öffnen kann.
+
+3. Claude erledigt den Rest und sagt dir genau, wann du was tun musst.
+   Das Einzige, was du selbst machst: einmal ein Konto bei
+   **[fal.ai](https://fal.ai)** anlegen und dort Guthaben aufladen
+   (10 $ reichen für den Anfang) — Claude führt dich hindurch.
+
+**Später wieder starten?** Sag Claude einfach: „Starte mein Kreativstudio.“
+
+**Stimmen (Audio) oder bessere Prompts freischalten?** Sag Claude:
+„Hilf mir, meinen ElevenLabs-Key / Google-Key ins Kreativstudio einzutragen.“
 
 ---
 
-## Schritt 1: Studio herunterladen
+<details>
+<summary><strong>Für Selbermacher: Installation ohne Claude (optional)</strong></summary>
 
-Öffne das Programm **Terminal** (auf dem Mac: `cmd + Leertaste` → „Terminal“
-tippen → Enter) und füge diese zwei Zeilen ein:
+Terminal öffnen (Mac: `cmd + Leertaste` → „Terminal“) und nacheinander:
 
 ```bash
-git clone <DEIN-REPO-LINK-HIER> mein-kreativstudio
+git clone https://github.com/AIONEpreneur/kreativstudio mein-kreativstudio
 cd mein-kreativstudio
-```
-
-## Schritt 2: Installieren (ein Befehl)
-
-```bash
 ./installieren.sh
 ```
 
-Das Skript prüft, ob Node.js da ist (installiert es sonst automatisch),
-lädt alle Bausteine und legt dir eine Vorlage für deine Keys an.
-
-## Schritt 3: Deinen fal.ai-Key eintragen
-
-1. Konto anlegen auf **[fal.ai](https://fal.ai)** → oben rechts **Dashboard**
-2. Unter **Billing** Guthaben aufladen (10 $ reichen für den Anfang)
-3. Unter **Keys** einen neuen API-Key erstellen und kopieren
-4. Im Terminal die Key-Datei öffnen:
-
-```bash
-open -e ~/.env
-```
-
-5. Dort `HIER_DEINEN_FAL_KEY_EINTRAGEN` durch deinen echten Key ersetzen
-   und speichern.
-
-**Optional dazu (empfohlen):**
-- **Google-Key** (macht aus deiner kurzen Idee automatisch einen starken,
-  modell-spezifischen Prompt): auf
-  [aistudio.google.com/apikey](https://aistudio.google.com/apikey) erstellen
-  und in derselben Datei bei `GOOGLE_API_KEY=` eintragen (das `#` am
-  Zeilenanfang entfernen).
-- **ElevenLabs-Key** (für den Audio-Reiter): auf
-  [elevenlabs.io](https://elevenlabs.io/app/settings/api-keys) erstellen und
-  bei `ELEVENLABS_API_KEY=` eintragen (auch hier das `#` entfernen).
-
-## Schritt 4: Starten
+Dann den fal.ai-Key (von [fal.ai/dashboard/keys](https://fal.ai/dashboard/keys))
+in die Datei `~/.env` eintragen (`open -e ~/.env`), optional Google- und
+ElevenLabs-Key ergänzen, und starten mit:
 
 ```bash
 npm run dev
 ```
 
-Dann im Browser öffnen: **http://localhost:5200**
+Im Browser öffnen: **http://localhost:5200** — fertig. 🎉
 
-Fertig. 🎉
-
-> Zum Beenden im Terminal `Ctrl + C` drücken. Beim nächsten Mal reicht:
-> im Projektordner wieder `npm run dev` ausführen.
+</details>
 
 ---
 
@@ -126,8 +104,9 @@ Fertig. 🎉
 
 ## Häufige Fragen
 
-**Muss ich programmieren können?**
-Nein. Installation ist Copy-and-paste, danach ist alles klickbare Oberfläche.
+**Muss ich programmieren können oder das Terminal benutzen?**
+Nein. Du kopierst einen Auftrag in Claude Code, Claude macht den Rest.
+Danach ist alles klickbare Oberfläche im Browser.
 
 **Was kostet mich das im Monat?**
 Nur was du generierst. Bilder oft 1–5 Cent, Videos je nach Modell ein paar
@@ -138,12 +117,12 @@ Ja. Die Keys liegen nur in der Datei `~/.env` auf deinem Rechner und werden
 nie an den Browser oder an Dritte geschickt.
 
 **„Der Studio-Server ist nicht erreichbar“?**
-Meist fehlt der FAL_KEY in `~/.env`, oder das Studio wurde nach dem
-Eintragen nicht neu gestartet (`Ctrl + C`, dann wieder `npm run dev`).
+Meist fehlt der fal.ai-Key oder das Studio läuft gerade nicht. Sag Claude:
+„Mein Kreativstudio ist offline — starte es und prüfe, ob mein Key stimmt.“
 
 **Es klappt etwas nicht — was tun?**
-Terminal-Meldung kopieren und in Claude einfügen mit der Bitte, das Problem
-zu lösen. Claude kennt dieses Projekt-Setup.
+Sag es Claude, am besten mit der Fehlermeldung, die du siehst. Claude kennt
+dieses Projekt und löst so etwas in der Regel selbstständig.
 
 ---
 
