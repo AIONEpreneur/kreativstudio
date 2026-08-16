@@ -535,6 +535,7 @@ export default function PromptBar({
   params, setParams, hide, refs, onAttach, onRemoveRef,
   rewritten, setRewritten, onOptimize, onGenerate,
   quote, busy, running, onPickModel, referenceModel, shotSettings, setShotSettings,
+  rewriterEnabled = true,
 }) {
   const fileRef = useRef(null);
   const [openRewrite, setOpenRewrite] = useState(true);
@@ -707,7 +708,7 @@ export default function PromptBar({
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
-                rewritten ? onGenerate() : onOptimize();
+                rewritten || !rewriterEnabled ? onGenerate() : onOptimize();
               }
               if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
                 e.preventDefault();
@@ -716,8 +717,14 @@ export default function PromptBar({
             }}
           />
 
-          <button type="button" className="go" onClick={rewritten ? onGenerate : onOptimize} disabled={busy || !ready}>
-            {running ? "Läuft…" : busy ? "Arbeitet…" : rewritten ? "Generieren" : "Prompt verfeinern"}
+          <button
+            type="button"
+            className="go"
+            onClick={rewritten || !rewriterEnabled ? onGenerate : onOptimize}
+            disabled={busy || !ready}
+            title={rewriterEnabled ? undefined : "Dein Text wird direkt gesendet. Ein Google-Key in ~/.env schaltet die automatische Prompt-Verfeinerung frei."}
+          >
+            {running ? "Läuft…" : busy ? "Arbeitet…" : rewritten || !rewriterEnabled ? "Generieren" : "Prompt verfeinern"}
           </button>
         </div>
 

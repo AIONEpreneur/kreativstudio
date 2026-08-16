@@ -257,6 +257,13 @@ export default function App() {
   const [theme, setTheme] = useState(() => {
     try { return localStorage.getItem("bench.theme") || "dark"; } catch { return "dark"; }
   });
+  const [rewriterEnabled, setRewriterEnabled] = useState(false);
+
+  useEffect(() => {
+    readJson("/api/health")
+      .then((health) => setRewriterEnabled(!String(health.rewriter ?? "").startsWith("disabled")))
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -653,6 +660,7 @@ export default function App() {
                     quote={quote}
                     busy={busy}
                     running={Boolean(job)}
+                    rewriterEnabled={rewriterEnabled}
                   />
                 </div>
 

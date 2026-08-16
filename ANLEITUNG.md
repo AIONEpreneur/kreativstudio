@@ -83,9 +83,11 @@ Im Browser öffnen: **http://localhost:5200** — fertig. 🎉
 
 - **Erstellen** — Bilder und Videos mit 37 Top-Modellen. Referenzbild
   anhängen (z. B. dein Produktfoto), Modus wählen (UGC-Werbung, Unboxing,
-  Produktfoto …), Idee in normalen Worten hinschreiben, „Prompt verfeinern“
-  klicken — das Studio schreibt daraus den optimalen Prompt für genau dieses
-  Modell. Du siehst die **geschätzten Kosten vor dem Start**.
+  Produktfoto …), Idee in normalen Worten hinschreiben, „Generieren“ klicken.
+  Du siehst die **geschätzten Kosten vor dem Start**. Mit dem optionalen
+  Google-Key erscheint zusätzlich „Prompt verfeinern“: Das Studio übersetzt
+  deine Idee dann erst in einen Profi-Prompt für genau dieses Modell, den du
+  vor dem Generieren prüfen und anpassen kannst.
 - **Audio** — Text eingeben, Stimme aus deinem ElevenLabs-Konto wählen,
   fertig ist das Voiceover für Reels, Kurse oder Videos.
 - **Modelle** — der Katalog zeigt alle Modelle mit Preis, Tempo und dem, was
