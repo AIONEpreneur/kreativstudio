@@ -4,7 +4,7 @@
 set -e
 
 echo ""
-echo "🎬  Bench Studio wird eingerichtet …"
+echo "🎬  Kreativstudio wird eingerichtet …"
 echo ""
 
 # ---------- 1. Node.js 24 sicherstellen ----------
