@@ -19,7 +19,7 @@ kosten wird, und danach, was es wirklich gekostet hat.
 | **fal.ai-Konto + API-Key** | Bilder & Videos (Pflicht) | Pay-per-Use — Guthaben aufladen, z. B. 10 $, kein Abo |
 | **Google-AI-Studio-Key** | Automatische Prompt-Verbesserung (optional) | Kostenlose Stufe reicht |
 | **ElevenLabs-Konto + Key** | Sprachausgabe / Voiceover (optional) | Gratis-Kontingent (10.000 Zeichen/Monat); mehr ab 5 $/Monat |
-| **Einen Mac oder Linux-Rechner** | Das Studio läuft lokal bei dir | — |
+| **Einen Computer (Mac, Windows oder Linux)** | Das Studio läuft lokal bei dir | — |
 
 > 💡 **Wichtig:** fal.ai ist reines Pay-per-Use — du lädst Guthaben auf und
 > zahlst nur, was du nutzt. Nur ElevenLabs (Stimmen) hat ein eigenes
@@ -35,12 +35,15 @@ das übernimmt Claude für dich.
 1. Öffne **Claude Code** (kennst du aus dem Sprint 😉).
 2. Kopiere diesen Auftrag hinein und schick ihn ab:
 
-> Lies das Repository https://github.com/AIONEpreneur/kreativstudio und installiere mir daraus das
-> Kreativstudio in einen Ordner „mein-kreativstudio“. Führe das Skript
-> installieren.sh aus. Hilf mir danach Schritt für Schritt, meinen
-> fal.ai-Key einzutragen — ich erstelle ihn auf fal.ai/dashboard/keys, sag
-> mir genau, wo ich klicken muss. Starte dann das Studio und sag mir, wann
-> ich http://localhost:5200 im Browser öffnen kann.
+> Lies das Repository https://github.com/AIONEpreneur/kreativstudio und
+> installiere mir daraus das Kreativstudio in einen Ordner
+> „mein-kreativstudio“. Sorge zuerst dafür, dass Node.js 24 installiert ist
+> (Mac: das Skript installieren.sh erledigt alles; Windows: Node direkt von
+> nodejs.org installieren, dann npm install ausführen). Hilf mir danach
+> Schritt für Schritt, meinen fal.ai-Key in die Datei .env in meinem
+> Benutzerordner einzutragen — ich erstelle ihn auf fal.ai/dashboard/keys,
+> sag mir genau, wo ich klicken muss. Starte dann das Studio und sag mir,
+> wann ich http://localhost:5200 im Browser öffnen kann.
 
 3. Claude erledigt den Rest und sagt dir genau, wann du was tun musst.
    Das Einzige, was du selbst machst: einmal ein Konto bei
@@ -55,7 +58,7 @@ das übernimmt Claude für dich.
 ---
 
 <details>
-<summary><strong>Für Selbermacher: Installation ohne Claude (optional)</strong></summary>
+<summary><strong>Für Selbermacher: Installation ohne Claude (optional, Mac/Linux)</strong></summary>
 
 Terminal öffnen (Mac: `cmd + Leertaste` → „Terminal“) und nacheinander:
 
@@ -127,6 +130,13 @@ Zeit — alte Ergebnisse kannst du einfach im Studio löschen.
 ---
 
 ## Häufige Fragen
+
+**Läuft das auch auf Windows?**
+Ja — über den Claude-Weg oben funktioniert es auch auf Windows (Claude
+installiert Node dann direkt statt über das Mac-Skript). Entwickelt und
+ausgiebig getestet haben wir auf dem Mac; wenn auf Windows etwas hakt, gib
+Claude einfach die Fehlermeldung. Die Key-Datei liegt dort unter
+`C:\Users\<DeinName>\.env`.
 
 **Muss ich programmieren können oder das Terminal benutzen?**
 Nein. Du kopierst einen Auftrag in Claude Code, Claude macht den Rest.

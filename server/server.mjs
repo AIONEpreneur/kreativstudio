@@ -13,7 +13,7 @@ import multer from "multer";
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, createWriteStream, unlinkSync } from "node:fs";
 import { basename, dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { homedir } from "node:os";
+import { homedir, tmpdir } from "node:os";
 import { randomUUID } from "node:crypto";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
@@ -1066,7 +1066,25 @@ app.get("/api/tooling", (_req, res) => {
 app.get("/api/tooling/skill", (_req, res) => {
   const folder = join(SKILL_PACKAGES, "bench-studio");
   if (!existsSync(join(folder, "SKILL.md"))) {
-    return res.status(404).json({ error: "The Bench skill package is unavailable" });
+    return res.status(404).json({ error: "Das Skill-Paket ist nicht verfügbar." });
+  }
+
+  // Windows hat kein /usr/bin/zip — dort packt PowerShell das Archiv.
+  if (process.platform === "win32") {
+    const tmpZip = join(tmpdir(), `kreativstudio-skill-${Date.now()}.zip`);
+    const packer = spawn("powershell.exe", [
+      "-NoProfile", "-Command",
+      `Compress-Archive -Path '${folder}' -DestinationPath '${tmpZip}' -Force`,
+    ], { stdio: ["ignore", "ignore", "pipe"] });
+    packer.on("close", (code) => {
+      if (code !== 0 || !existsSync(tmpZip)) {
+        return res.status(500).json({ error: "Das Skill-Paket konnte nicht gepackt werden." });
+      }
+      res.attachment("bench-studio-skill.zip");
+      res.sendFile(tmpZip, () => { try { unlinkSync(tmpZip); } catch {} });
+    });
+    packer.on("error", () => res.status(500).json({ error: "Das Skill-Paket konnte nicht gepackt werden." }));
+    return;
   }
 
   res.attachment("bench-studio-skill.zip");

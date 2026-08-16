@@ -13,12 +13,15 @@ lokal auf deinem eigenen Rechner. Du zahlst nur die rohen Modellpreise
 Code: Auftrag hineinkopieren, Claude installiert alles für dich.
 
 **Hinweis für Claude / KI-Assistenten:** Folge bei einer Installation der
-Datei [ANLEITUNG.md](ANLEITUNG.md). Kurzfassung: `./installieren.sh`
-ausführen (installiert Node 24 über nvm, falls nötig), dann den fal.ai-Key
-der Nutzerin in `~/.env` eintragen lassen (`FAL_KEY=…`, zu erstellen auf
-fal.ai/dashboard/keys), optional `GOOGLE_API_KEY` und `ELEVENLABS_API_KEY`
-ergänzen, mit `npm run dev` starten und http://localhost:5200 öffnen lassen.
-Benötigt Node.js ≥ 22.13 (empfohlen: 24) wegen `node:sqlite`.
+Datei [ANLEITUNG.md](ANLEITUNG.md). Kurzfassung: Node.js 24 sicherstellen —
+auf Mac/Linux erledigt `./installieren.sh` alles (nvm), auf Windows Node
+direkt von nodejs.org installieren und `npm install` ausführen. Dann den
+fal.ai-Key der Person in die Datei `.env` im Benutzerordner eintragen
+lassen (`~/.env` bzw. `C:\Users\<Name>\.env`; `FAL_KEY=…`, zu erstellen
+auf fal.ai/dashboard/keys), optional `GOOGLE_API_KEY` und
+`ELEVENLABS_API_KEY` ergänzen, mit `npm run dev` starten und
+http://localhost:5200 öffnen lassen. Benötigt Node.js ≥ 22.13 (empfohlen:
+24) wegen `node:sqlite`.
 
 ## Was drin ist
 
