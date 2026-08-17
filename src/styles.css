@@ -1256,3 +1256,5 @@ p { text-wrap: pretty; }
   .top-nav a { padding: 8px 8px; }
   .usage > span:first-child { display: none; }
 }
+
+.update-notice { margin-bottom: 22px; }

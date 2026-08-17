@@ -264,12 +264,26 @@ export default function App() {
     try { return localStorage.getItem("bench.theme") || "dark"; } catch { return "dark"; }
   });
   const [rewriterEnabled, setRewriterEnabled] = useState(false);
+  const [update, setUpdate] = useState(null);
 
   useEffect(() => {
     readJson("/api/health")
       .then((health) => setRewriterEnabled(!String(health.rewriter ?? "").startsWith("disabled")))
       .catch(() => {});
+    readJson("/api/update-status")
+      .then((status) => {
+        if (!status.update_available) return;
+        let dismissed = "";
+        try { dismissed = localStorage.getItem("bench.update-dismissed") || ""; } catch {}
+        if (dismissed !== status.latest) setUpdate(status);
+      })
+      .catch(() => {});
   }, []);
+
+  function dismissUpdate() {
+    try { localStorage.setItem("bench.update-dismissed", update?.latest ?? ""); } catch {}
+    setUpdate(null);
+  }
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -629,6 +643,21 @@ export default function App() {
         <div className="studio-layout">
           <main className="workspace" id="main-content" tabIndex="-1">
             <div className="workspace-inner">
+              {update && (
+                <section className="error-notice info update-notice" role="status">
+                  <div>
+                    <strong>Neue Version verfügbar ({update.current} → {update.latest})</strong>
+                    <p>
+                      Dein Kreativstudio wurde verbessert. Sag Claude einfach:
+                      {" "}<em>„Aktualisiere mein Kreativstudio auf die neueste Version von
+                      https://github.com/AIONEpreneur/kreativstudio.“</em>
+                    </p>
+                  </div>
+                  <div className="error-actions">
+                    <button type="button" onClick={dismissUpdate}>Später</button>
+                  </div>
+                </section>
+              )}
               {activeView === "create" && <section className="hero view-page" id="create">
                 <div className="workspace-head">
                   <div className="hero-copy">

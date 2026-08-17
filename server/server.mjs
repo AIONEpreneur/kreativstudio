@@ -1120,6 +1120,45 @@ app.post("/api/catalog/sync", async (_req, res) => {
   catch (error) { res.status(502).json({ error: String(error.message ?? error) }); }
 });
 
+// ---------------------------------------------------------------- Update-Hinweis
+//
+// Beim Öffnen prüft das Studio still, ob im Community-Repo eine neuere Version
+// liegt. Es wird nichts automatisch installiert — die Oberfläche zeigt nur
+// einen Hinweis mit dem fertigen Claude-Auftrag. Kein Netz = kein Hinweis.
+
+const LOCAL_VERSION = JSON.parse(readFileSync(join(HERE, "..", "package.json"), "utf8")).version ?? "0.0.0";
+const UPDATE_SOURCE = "https://raw.githubusercontent.com/AIONEpreneur/kreativstudio/main/package.json";
+let UPDATE_CACHE = null;
+
+function versionNewer(remote, local) {
+  const a = String(remote).split(".").map((n) => parseInt(n, 10) || 0);
+  const b = String(local).split(".").map((n) => parseInt(n, 10) || 0);
+  for (let i = 0; i < Math.max(a.length, b.length); i++) {
+    if ((a[i] ?? 0) !== (b[i] ?? 0)) return (a[i] ?? 0) > (b[i] ?? 0);
+  }
+  return false;
+}
+
+app.get("/api/update-status", async (_req, res) => {
+  if (UPDATE_CACHE && Date.now() - UPDATE_CACHE.checked_at_ms < 6 * 60 * 60 * 1000) {
+    return res.json(UPDATE_CACHE.payload);
+  }
+  let payload = { current: LOCAL_VERSION, latest: null, update_available: false };
+  try {
+    const response = await fetch(UPDATE_SOURCE, { signal: AbortSignal.timeout(4000) });
+    if (response.ok) {
+      const remote = await response.json();
+      payload = {
+        current: LOCAL_VERSION,
+        latest: remote.version ?? null,
+        update_available: Boolean(remote.version && versionNewer(remote.version, LOCAL_VERSION)),
+      };
+    }
+  } catch {}
+  UPDATE_CACHE = { checked_at_ms: Date.now(), payload };
+  res.json(payload);
+});
+
 app.get("/api/spend", (_req, res) => res.json(spendSummary()));
 
 app.get("/api/audio/status", (_req, res) => {

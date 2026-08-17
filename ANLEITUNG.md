@@ -138,6 +138,11 @@ ausgiebig getestet haben wir auf dem Mac; wenn auf Windows etwas hakt, gib
 Claude einfach die Fehlermeldung. Die Key-Datei liegt dort unter
 `C:\Users\<DeinName>\.env`.
 
+**Wie erfahre ich von Updates?**
+Gar nicht nötig, dich darum zu kümmern: Das Studio prüft beim Öffnen selbst,
+ob es eine neue Version gibt, und zeigt dir dann oben einen Hinweis — mit dem
+fertigen Satz, den du Claude sagst. Installiert wird nie etwas automatisch.
+
 **Muss ich programmieren können oder das Terminal benutzen?**
 Nein. Du kopierst einen Auftrag in Claude Code, Claude macht den Rest.
 Danach ist alles klickbare Oberfläche im Browser.
