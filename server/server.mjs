@@ -1127,7 +1127,11 @@ app.post("/api/catalog/sync", async (_req, res) => {
 // einen Hinweis mit dem fertigen Claude-Auftrag. Kein Netz = kein Hinweis.
 
 const LOCAL_VERSION = JSON.parse(readFileSync(join(HERE, "..", "package.json"), "utf8")).version ?? "0.0.0";
-const UPDATE_SOURCE = "https://raw.githubusercontent.com/AIONEpreneur/kreativstudio/main/package.json";
+// Zwei Quellen, weil raw.githubusercontent.com einzelne Netze zeitweise drosselt.
+const UPDATE_SOURCES = [
+  { url: "https://raw.githubusercontent.com/AIONEpreneur/kreativstudio/main/package.json", headers: {} },
+  { url: "https://api.github.com/repos/AIONEpreneur/kreativstudio/contents/package.json", headers: { Accept: "application/vnd.github.raw+json" } },
+];
 let UPDATE_CACHE = null;
 
 function versionNewer(remote, local) {
@@ -1140,21 +1144,27 @@ function versionNewer(remote, local) {
 }
 
 app.get("/api/update-status", async (_req, res) => {
-  if (UPDATE_CACHE && Date.now() - UPDATE_CACHE.checked_at_ms < 6 * 60 * 60 * 1000) {
+  // Erfolgreiche Antworten 6 Stunden merken, Fehlschläge nur 30 Minuten —
+  // sonst versteckt ein kurzzeitig gedrosselter GitHub-Server Updates halbtags.
+  const maxAge = UPDATE_CACHE?.payload?.latest ? 6 * 60 * 60 * 1000 : 30 * 60 * 1000;
+  if (UPDATE_CACHE && Date.now() - UPDATE_CACHE.checked_at_ms < maxAge) {
     return res.json(UPDATE_CACHE.payload);
   }
   let payload = { current: LOCAL_VERSION, latest: null, update_available: false };
-  try {
-    const response = await fetch(UPDATE_SOURCE, { signal: AbortSignal.timeout(4000) });
-    if (response.ok) {
+  for (const source of UPDATE_SOURCES) {
+    try {
+      const response = await fetch(source.url, { headers: source.headers, signal: AbortSignal.timeout(4000) });
+      if (!response.ok) continue;
       const remote = await response.json();
+      if (!remote.version) continue;
       payload = {
         current: LOCAL_VERSION,
-        latest: remote.version ?? null,
-        update_available: Boolean(remote.version && versionNewer(remote.version, LOCAL_VERSION)),
+        latest: remote.version,
+        update_available: versionNewer(remote.version, LOCAL_VERSION),
       };
-    }
-  } catch {}
+      break;
+    } catch {}
+  }
   UPDATE_CACHE = { checked_at_ms: Date.now(), payload };
   res.json(payload);
 });
